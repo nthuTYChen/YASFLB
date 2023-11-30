@@ -134,3 +134,23 @@ png(filename = "ch3.figure21.png", width = 1200, height = 900, units = "px",
 plot(x = 1:20, y = (1:20)^2, type = "l", lwd = 2)
 
 dev.off()
+
+# Figure 22
+library(ggplot2)
+
+expType = c(rep("Exp I",2), rep("Exp II", 2))
+wordType = rep(c("noun", "verb"), 2)
+
+RTs = c(670,739,780,653) 
+results.data = data.frame(Exp = expType, Word = wordType, RT = RTs)
+
+results.plot = ggplot(data = results.data, 
+                      mapping = aes(x = Exp, y = RT, fill = Word))
+results.plot = results.plot + 
+  geom_bar(position = "dodge", color = "black", stat = "identity") +
+  scale_fill_manual(values = c("black", "gray")) +
+  ylab("RT (ms)") +
+  theme_bw()
+
+ggsave(file = "ch3.figure22.png", width = 1200, height = 900, units = "px",
+       dpi = 200)
