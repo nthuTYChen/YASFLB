@@ -212,4 +212,4 @@ legend(x = "topleft",
 # 安裝ggplot2及其關聯套件
 install.packages("ggplot2", dependencies = TRUE, ask = FALSE)
 
-
+library(ggplot2)	# 載入ggplot2套件
