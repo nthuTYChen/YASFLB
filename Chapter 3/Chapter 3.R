@@ -213,3 +213,51 @@ legend(x = "topleft",
 install.packages("ggplot2", dependencies = TRUE, ask = FALSE)
 
 library(ggplot2)	# 載入ggplot2套件
+
+# 組合重覆兩次的Exp I與Exp II字串，儲存為expType物件，rep = repetition
+expType = c(rep("Exp I",2), rep("Exp II", 2))
+
+# 重覆noun與verb的字串組合兩次，儲存為wordType物件
+wordType = rep(c("noun", "verb"), 2)
+#將四個反應時間組合，儲存至RT物件
+RTs = c(670,739,780,653) 	
+# 將三個向量物件放入不同的欄位，用data.frame()函數轉為資料框，儲存至results.data
+results.data = data.frame(Exp = expType, Word = wordType, RT = RTs)
+
+results.data
+#     Exp Word  RT
+#1  Exp I noun 670
+#2  Exp I verb 739
+#3 Exp II noun 780
+#4 Exp II verb 653
+
+# 在基礎設定中，x軸以實驗類別分組呈現，y軸呈現反應時間
+# 然後填滿的顏色則按照單詞類別做出差異
+results.plot = ggplot(data = results.data,
+                      mapping = aes(x = Exp, y = RT, fill = Word))
+
+# 此時呼叫results.plot物件會得到一片空白的圖
+results.plot
+
+# 把geom_bar()函數加入到底圖中，定義數據以長條圖呈現
+results.plot = results.plot + 
+  geom_bar(position = "dodge", color = "black", stat = "identity")
+
+# 再次呼叫results.plot物件會得到長條圖
+results.plot
+
+# 練習六
+results.plot = results.plot +
+  scale_fill_manual(values=c("black", "gray")) +
+  ylab("RT (ms)") +
+  theme_bw()
+
+results.plot
+
+# 也可以一氣呵成！
+ggplot(results.data, aes(x=Exp, y=RT, fill=Word)) + 
+  geom_bar(position = "dodge", color = "black", stat = "identity") +
+  scale_fill_manual(values = c("black", "gray")) +
+  # 看看這一行做了什麼改變？也可以試著估狗一下怎麼調整圖表標籤的位置！
+  labs(title = "Reaction time results", y = "RT (ms)") +
+  theme_bw()
