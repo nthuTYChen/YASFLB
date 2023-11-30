@@ -46,3 +46,6 @@ head(jw.table, 10)
 # 以列為單位讀取文字檔中的資料成為向量並儲存為物件
 jabberwocky.orig = readLines("Jabberwocky_Original.txt")
 
+# 排除沒有字元的字串值並儲存為獨立的jabberwocky.clean
+jabberwocky.clean = subset(jabberwocky.orig, jabberwocky.orig != "")
+

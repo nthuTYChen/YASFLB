@@ -19,9 +19,6 @@ number
 #sum = 5 
 #會覆蓋掉sum()原始的函數功能，要重新打開R才能使用sum()囉！太危險了先幫你標起來。
 
-Number		# 大小寫有差異，因此產生找不到物件的錯誤訊息
-#Error: object 'Number' not found
-
 # 將五個數字結合成一個向量存入物件
 numbers = c(1,3,5,7,9)	
 # 呼叫物件，[1]是指第一筆資料為1
@@ -129,5 +126,26 @@ wordCats = c("N", "N", "V", "C", "N")
 # 將剛剛建立的向量儲存為lang.data中的WordCat欄位
 lang.data$WordCat = wordCats
 
+# 第六節
+Number		# 大小寫有差異，因此產生找不到物件的錯誤訊息
+#Error: object 'Number' not found
+
+# 有邏輯的物件命名方式(儲存字串所以叫string)
+string = "This is a string!"	
+# 無厘頭的命名方式
+a = "This is a string!"
+
+# 組合多個字成為有意義且好讀的物件名稱
+nameOfAuthors = c("James Myers", "Tsung-Ying Chen", "Yu-an Lu")
+
+# 在建立向量時指定儲存混合數值與字串資料
+mixedData = c(1, "Yes", 3, "No", 5)	
+# 全部都轉換為字元了
+class(mixedData)				
+#[1] "character"
+mixedData
+#[1] "1"   "Yes" "3"   "No"  "5"
+
+# 第七節
 # 使用RStudio
 number = sum(10, 1)
