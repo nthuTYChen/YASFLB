@@ -119,15 +119,15 @@ lang.data[2:4,]
 #4   and       3
 
 # 練習二
+# 將rownames(也就是列編號)以rownames()函數取出
+# 再存入lang.data裡新建立的Order欄位
+lang.data$Order = rownames(lang.data)
+# 新增SubjLen欄位，並將欄位中所有的值統一指定為數字1
+lang.data$SubjLen = 1
+# 建立wordCats向量，儲存五個字的詞類
+wordCats = c("N", "N", "V", "C", "N")
+# 將剛剛建立的向量儲存為lang.data中的WordCat欄位
+lang.data$WordCat = wordCats
 
 # 使用RStudio
 number = sum(10, 1)
-
-
-
-
-
-
-
-
-
