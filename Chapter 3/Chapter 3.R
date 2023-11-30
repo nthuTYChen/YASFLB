@@ -49,3 +49,50 @@ jabberwocky.orig = readLines("Jabberwocky_Original.txt")
 # 排除沒有字元的字串值並儲存為獨立的jabberwocky.clean
 jabberwocky.clean = subset(jabberwocky.orig, jabberwocky.orig != "")
 
+# 建立向量物件儲存常見的英文半形符號
+punctuations = c("\"","'","\\.",",","—","\\?","!",";",":","-")
+
+# 每一次迴圈依序從punctuations中取出一個符號存入punc中
+for(punc in punctuations) {
+  print(punc)	# 在迴圈內重覆印出punc的內容
+}
+#[1] "\""
+#[1] "'"
+#[1] "."
+#[1] ","
+#...
+
+# 把"good dog"字串中的"g"一律取代為"Y"
+gsub("g", "Y", "good dog")	
+#[1] "Yood doY"
+
+# 先複製一份jabberwocky.clean成為jabberwocky.nopunc
+jabberwocky.nopunc = jabberwocky.clean
+# 見四之二文章解釋迴圈功能
+for(punc in punctuations) {
+	jabberwocky.nopunc = gsub(punc, "", jabberwocky.nopunc)
+}
+head(jabberwocky.nopunc)
+#[1] "Jabberwocky"                       "Twas brillig and the slithy toves"
+#[3] "Did gyre and gimble in the wabe"   "All mimsy were the borogoves"     
+#[5] "And the mome raths outgrabe"       "Beware the Jabberwock my son"
+
+# 將所有文字轉換為小寫
+jabberwocky.lower = tolower(jabberwocky.nopunc) 
+
+# 以空白符號斷詞
+jabberwocky.wordlists = strsplit(jabberwocky.lower," ")
+# 斷詞完的結果是一個列表，每個列表為每一行句子的斷詞結果
+class(jabberwocky.wordlists)
+#[1] "list"
+head(jabberwocky.wordlists)
+#[[1]]
+#[1] "jabberwocky"
+
+#[[2]]
+#[1] "twas"    "brillig" "and"     "the"     "slithy"  "toves"  
+
+#[[3]]
+#[1] "did"    "gyre"   "and"    "gimble" "in"     "the"    "wabe"  
+#...
+  
