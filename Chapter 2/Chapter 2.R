@@ -146,6 +146,42 @@ class(mixedData)
 mixedData
 #[1] "1"   "Yes" "3"   "No"  "5"
 
+# 以連續雙引號定義空字串
+emptyStr = ""		
+nchar(emptyStr)		# 空字串長度為0
+
+# 以paste()函數連結rose與s，而分隔符號(sep = separate)為空字串
+paste("rose", "s", sep = "")
+
+# 以strsplit()函數分隔字串，並將分隔單位split設定為空字串
+strsplit("roses", split = "")
+#[[1]]
+#[1] "r" "o" "s" "e" "s"
+
+# 讀取GitHub第二章資源的quotes.txt檔案
+quotes = readLines("quotes.txt")
+quotes
+#[1] "\"The greatest glory in living lies not in never falling, but in rising every time we fall.\""                          
+#[2] "\"The future belongs to those who believe in the beauty of their dreams.\""                                             
+#[3] "\"You may say I'm a dreamer, but I'm not the only one. I hope someday you'll join us. And the world will live as one.\""
+
+# 以gsub()函數將所有的雙引號字元以空字串取代，雙引號字元前以「\\」標註「跳脫」
+gsub("\"", "", quotes)
+#[1] "The greatest glory in living lies not in never falling, but in rising every time we fall."                          
+#[2] "The future belongs to those who believe in the beauty of their dreams."                                             
+#[3] "You may say I'm a dreamer, but I'm not the only one. I hope someday you'll join us. And the world will live as one."
+
+# 有縮排的程式碼，自己執行看看輸出是什麼吧！
+# 在R Console中，多行但屬於同一指令的程式碼會以「+」號代表。你不用輸入這些「+」號
+for(i in 1:10) {
+	print(i)
+}
+
+# 沒有縮排的程式碼，執行結果相同，但就是難讀呀！
+for(i in 1:10) {
+print(i)
+}
+
 # 第七節
 # 使用RStudio
 number = sum(10, 1)
