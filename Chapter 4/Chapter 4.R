@@ -1,3 +1,5 @@
+# 別忘了設定工作目錄！
+
 # 二之三節
 # 以read.table()讀取含有數值的檔案，並設定有欄位標題(header)
 RTdat = read.table("RTdat.txt", header = T)
@@ -111,3 +113,225 @@ plot(v.abs ~ v, type = "l")
 # 四之五節
 # 計算只有一筆數值的「樣本標準差」是沒有意義的
 sd(9)
+
+x = c(1,3,5,7,9)
+# sqrt()函數計算平方根，length()函數計算向量中的資料數目
+# 驗證以R函數計算出來的標準差與變異數是否「相等」(==)於
+# 手動計算的結果
+sd(x) == sqrt(sum((x - mean(x)) ^ 2)/(length(x) - 1))
+var(x) == sum((x - mean(x)) ^ 2)/(length(x) - 1)
+
+# 五之一節
+RTs = read.table("RTs_New.txt", header = T)
+
+minRT = min(RTs$RT)		# 取得所有反應時間最小值，做為x軸區間使用
+maxRT = max(RTs$RT)		# 取得所有反應時間最大值，做為x軸區間使用
+subj4 = subset(RTs, Participant==4)	# 取出受試者4號的資料子集合
+subj5 = subset(RTs, Participant==5)	# 取出受試者5號的資料子集合
+# 製作受試者4號的分佈密度圖，設定xlim參數定義x軸區間，設定main參數定義圖片標題
+plot(density(subj4$RT), xlim = c(minRT,maxRT),
+       +	main="RT distribution")
+# 以lines()函數將受試者5號的分佈線加到現有圖片上，並設定lty線條樣式參數為虛線
+lines(density(subj5$RT), lty=2)
+# 以legend()函數在現有圖片上加上圖例解釋圖表。第一個參數為圖例的位置，
+# 第二個參數為圖例的兩組文字，第三個參數則是圖例兩組文字對應到的線條(實線與虛線)
+legend("topright", legend=c("Participant 4", "Participant 5"),
+         +	lty=c(1,2))
+
+# ggplot2的作法(別忘了先載入ggplot2套件)
+RTs$Participant = as.factor(RTs$Participant)
+# 將受試者欄位轉換為因素(factor)，讓ggplot2可以根據因素裡的類別來自動進行分類
+ggplot(RTs, aes(x=RT, linetype=Participant))+
+  # 以RTs資料框物件製作圖表，以RT欄位為x軸，並以Participant欄位分組給予不同線條樣式
+ geom_density(color="black")+
+  # 在geom_density()函數中將所有線條顏色設定為黑色
+ scale_linetype_manual(values=c("solid", "dashed"))+
+  # 利用scale_linetype_manual()函數手動設定線條樣式為實線與虛線
+ labs(title = "RT distribution")+	# 利用labs()函數，設定圖片標題
+ theme_classic()				# 使用theme_classic()的圖片主題樣式
+
+# 取出subj4資料框中Item欄位值為14的列數，然後取得RT欄位資料
+subj4[subj4$Item == 14,]$RT
+#[1] 627
+# 取出subj5資料框中Item欄位值為14的列數，然後取得RT欄位資料
+subj5[subj5$Item == 14,]$RT
+#[2] 652
+
+# 新增RT.y欄位儲存兩位受試者中心化(每筆資料數據減去平均值)後的資料分佈
+subj4$RT.y = subj4$RT - mean(subj4$RT)
+subj5$RT.y = subj5$RT - mean(subj5$RT)
+
+# 練習七
+# 建立RT.y欄位並存入「0」的數值
+RTs$RT.y = 0
+
+# 從RTs的Participant欄位取得不重覆的值，就可得到所有受試者編號
+participants = unique(RTs$Participant)
+
+# 設定迴圈，依序在每次迴圈中從participants取出一個值，存入participant
+for(participant in participants) {
+  # 取出RTs中的Participant欄位符合participant中數值的資料子集合(注意大小寫)
+  RTs.sub = subset(RTs, Participant == participant)
+  # 計算該participant的平均反應時間
+  RT.mean = mean(RTs.sub$RT)
+  # 計算該participant反應時間與平均值的差異
+  RT.diff = RTs.sub$RT - RT.mean
+  # 將這些「中央化」的反應時間存回RTs中屬於該participant的RT.y欄位
+  RTs[RTs$Participant == participant, ]$RT.y = RT.diff
+}
+
+subj4[subj4$Item == 14,]$RT.y
+#[1] 103.7333
+subj5[subj5$Item == 14,]$RT.y
+#[2] -125.6667
+
+# 五之二節
+# 新增RT.z欄位儲存受試者以標準差轉換(中心化反應時間除以原始反應時間標準差)後的資料
+subj4$RT.z = subj4$RT.y/sd(subj4$RT)
+subj5$RT.z = subj5$RT.y/sd(subj5$RT)
+
+subj4[subj4$Item == 14,]$RT.z
+#[1] 1.182903 # 比受試者4的平均值高1.18個標準差
+subj5[subj5$Item == 14,]$RT.z
+#[2] -0.7447685 # 比受試者5的平均值低0.75個標準差
+
+# 除了反應時間的z分數外，也顯示資料分佈平均值與標準差
+scale(subj4$RT)	
+# 將透過scale函數轉換後的反應時間z分數存入RT.scaled欄位。
+subj4$RT.scaled = scale(subj4$RT)
+# 與RT.z欄位比較看看是否相同？
+head(subj4)
+
+mean(subj4$RT.z)	# 轉換為z分數分佈的平均值極近似於0
+sd(subj4$RT.z)	  # 轉換為z分數分佈的標準差是1
+
+# 五之三節
+# 讀取有語言學概論考試成績的檔案 
+grades = read.table("example-grades.txt", header = T)
+# 將所有學生的考試分數標準化為z分數
+grades$TestScores.z = scale(grades$TestScores)
+# 計算資料框中TestScores.z欄位小於-0.75子集合的列數，代表不及格學生的數量
+nrow(subset(grades, TestScores.z < -0.75))
+#[1] 23
+
+# 六之一節
+# 練習八
+# 從介於0至1的均勻分佈區間產生1,000,000個亂數
+randUniNums = runif(1000000)
+# 產生直方圖呈現實際資料分佈
+hist(randUniNums)
+# 取得向量的分佈密度
+rand.den = density(randUniNums)
+# 產生線條圖呈現分佈密度
+plot(rand.den, type = "l")
+
+rnorm(2)	# 從平均值為0、標準差為1的常態分佈中抽樣兩個數字
+
+# 利用for迴圈逐漸累積抽樣數字，產生分佈密度圖變化的動畫
+# 先抽樣第一筆兩個數字存入nums為數字向量
+nums = rnorm(2)			
+# 利用for迴圈再另外抽樣10000次
+for(i in 1:10000) {		
+  # 用結合函數將新的抽樣數字累積至nums數字向量
+	nums = c(nums, rnorm(2))	
+	# 每次產生新的抽樣數字後製作nums的分佈密度圖
+	plot(density(nums))		
+}
+
+# 產生-3,-2.9…2.9,3的連續數字向量
+x = (-30:30)/10		
+# 產生x中每個值在平均值為0標準差為1的理想常態分佈中的預期分佈密度
+y = dnorm(x)		
+# 產生分佈線狀圖(type="l")
+plot(x, y, type = "l")	
+
+# 練習九
+# 產生1至30的整數並儲存至newX中
+newX = 1:30
+# 產生newX值在平均值為15標準差為3的常態分佈中的預期分佈密度
+newY = dnorm(newX, mean = 15, sd = 3)
+# 產生分佈線狀圖
+plot(newX, newY, type = "l")
+
+nums = rnorm(100)		# 從預設理想常態分佈抽樣100個數字
+highNums = sum(nums > 2)	# 計算nums > 2為TRUE的總數
+lowNums = sum(nums < -2)	# 計算nums < -2為TRUE的總數
+(highNums+lowNums)/100	# 以大於2與小於-2的數字數目加總除100計算比例
+
+# 計算在常態分佈中z分數-2至2之間的區域佔整個分佈區域的比例
+pnorm(2)-pnorm(-2)
+#[1] 0.9544997
+
+# 在常態分佈區域上標出-2至2的區間
+x = (-30:30)/10			# 產生-3,-2.9…2.9,3的連續數字向量
+y = dnorm(x)			# 產生x中每個值在理想常態分佈中的密度
+dat = data.frame(x=x, y=y)	# 將x與y數字向量合併為一個資料框物件dat
+dat.sub = subset(dat, x>=-2 & x<=2)	# 取出-2到2區間的資料區間存入dat.sub
+
+# 以ggplot2製作常態分佈圖，以dat中的x與y欄位資料分別做為圖表的x軸與y軸
+ggplot(data = dat, mapping = aes(x = x, y = y)) + 	
+    geom_line(color="black") +	# 以線狀圖呈現，顏色設定為黑色
+    # 在geom_ribbon()函數以dat.sub資料為基礎填入顏色，且將顏色設定為灰色
+    geom_ribbon(data = dat.sub, mapping = aes(x=x, ymax=y, ymin=0), 
+                fill="grey") +
+    # 利用geom_vline()函數在x軸的-2與2的位置加入垂直黑色虛線
+    geom_vline(aes(xintercept=-2), color="black", linetype="dashed") +
+    geom_vline(aes(xintercept=2), color="black", linetype="dashed") +
+    theme_classic()
+
+qnorm(0.025)	# 計算代表佔有常態分佈左方2.5%區域的z分數
+#[1] -1.959964
+qnorm(0.975)	# 計算代表佔有常態分佈左方97.5%區域的z分數
+#[1] 1.959964
+
+# 六之二節
+x = 35:65					# 產生35至65的連續值
+y = dnorm(x, mean = 50, sd = 5)		# 產生連續值在理想常態分佈中的密度
+plot(x, y , xlim=c(35, 65), type = "l")	# 產生常態分佈線狀圖
+abline(v = (50 - 5))				# 在−1標準差之處加上垂直線
+abline(v = (50 + 5))				# 在1標差之處加上垂直線
+
+# 以常態分佈計算丟擲四次硬幣結果的機率
+M.coin = 4 * 0.5
+sd.coin = sqrt(M.coin * (1 - 0.5))
+dnorm(3, M.coin, sd.coin)	# 投擲4次出現3次正面在常態分佈中的密度
+#[1] 0.2419707
+dnorm(4, M.coin, sd.coin)	# 投擲4次出現4次正面在常態分佈中的密度
+#[1] 0.05399097
+
+# 練習十
+# 以常態分佈計算丟擲四十次硬幣結果的機率
+# 平均值與標準差計算
+M.coin = 40 * 0.5
+sd.coin = sqrt(M.coin * (1 - 0.5))
+dnorm(12, M.coin, sd.coin)	# 投擲40次出現12次正面在常態分佈中的密度
+#[1] 0.005142422
+dnorm(25, M.coin, sd.coin)	# 投擲40次出現12次正面在常態分佈中的密度
+#[1] 0.03614448
+
+# 以二項分佈進行
+dbinom(3, 4, 0.5)	# 丟擲4次出現3次正面，且每次正面出現的機率為0.5
+#[1] 0.25
+dbinom(4, 4, 0.5)	# 丟擲4次出現4次正面，且每次正面出現的機率為0.5
+#[1] 0.05
+
+M.coin = 40 * 0.5
+sd.coin = sqrt(M.coin * (1-0.5))
+dnorm(12, M.coin, sd.coin) - dbinom(12, 40, 0.5)	# 比較常態分佈與二項分佈的密度
+#[1] 6.121147-e05
+dnorm(25, M.coin, sd.coin) - dbinom(25,  40,0.5)	# 比較常態分佈與二項分佈的密度
+#[1] -0.0004402538
+
+# 練習十一
+# 因為投擲了40次，所以將4改為40，並計算平均值與標準差
+M.coin = 40 * 0.5			
+sd.coin = sqrt(M.coin * (1 - 0.5))
+# 產生0至40的整數，代表投擲40次得到0次、1次…至40次人頭的結果。
+x = 0:40
+# 根據平均值與標準差從常態分佈中得到0至40整數的密度
+y = dnorm(x, M.coin, sd.coin)				
+# 產生根據常態分佈得到的分佈圖
+plot(x, y, xlim = c(0, 40), type = "l", main = "Coin Flip N = 40")	
+# 根據二項分佈加上圓點，代表投擲40次且得到人頭機率0.5，結果是得到0次、1次…至40次
+# 的分佈密度
+points(0:40, dbinom(0:40, 40, 0.5))
