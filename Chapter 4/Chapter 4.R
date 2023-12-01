@@ -335,3 +335,52 @@ plot(x, y, xlim = c(0, 40), type = "l", main = "Coin Flip N = 40")
 # 根據二項分佈加上圓點，代表投擲40次且得到人頭機率0.5，結果是得到0次、1次…至40次
 # 的分佈密度
 points(0:40, dbinom(0:40, 40, 0.5))
+
+# 比較實際樣本RTdat.txt的分佈密度與對應常態分佈的分佈密度
+RTdat.mean = mean(RTdat$RT)	# 取得樣本反應時間平均值
+RTdat.sd = sd(RTdat$RT)		# 取得樣本反應時間標準差
+RTdat.max = max(RTdat$RT)	# 取得樣本反應時間最大值
+RTdat.min = min(RTdat$RT)	# 取得樣本反應時間最小值
+# 根據實際反應時間最小值到最大值的範圍
+# 從相同平均值與標準差的理想常態分佈取得分佈密度
+RTdat.norm = dnorm(RTdat.min:RTdat.max, 
+                   mean = RTdat.mean, sd = RTdat.sd)
+# 先產生樣本的分佈密度圖
+plot(density(RTdat$RT))
+# 再加上以樣本的數值得到在常態分佈中的分佈密度曲線
+lines(x = RTdat.min:RTdat.max, y = RTdat.norm, lty = 2)
+
+#使用qqnorm()進行常態分位數的比較
+qqnorm(RTdat$RT)		# 產生反應時間資料的常態分位數比較圖
+qqline(RTdat$RT)		# 在比較圖上加上理想反應時間常態分佈的比較線
+
+# 從常態分佈抽樣然後產生QQ Norm Plot看看樣本貼近常態分佈的呈現結果
+# 設定隨機計算的「種子」，這樣我們就能得到相同的隨機計算結果
+set.seed(100)
+# 從平均值是10標準差為2的理想常態分佈抽樣100筆資料
+fake = rnorm(100, 10, 2)	
+qqnorm(fake)
+qqline(fake)
+
+# 練習十二
+# 先假設你按照第三章的步驟產生了含有Jabberwocky詞頻統計的jw.freq物件
+qqnorm(jw.freq)
+qqline(jw.freq)
+
+plot(1:100, log(1:100))	# 比較1至100以及1至100的對數轉換
+
+# 比較反應時間進行對數轉換前後貼近常態分佈的差異
+RTdat$logRT = log(RTdat$RT)	# 對數轉換
+par(mfrow = c(2, 2))		# 準備一個2x2的排版，讓四張圖可以依此排列
+hist(RTdat$RT, main = "Raw")	# 原始資料的分佈直方圖
+hist(RTdat$logRT, main = "Log")	# 對數轉換資料的分佈直方圖
+qqnorm(RTdat$RT, main = "Raw")	# 原始資料的常態分位數比較圖
+qqline(RTdat$RT)			# 加上理想常態分佈線
+qqnorm(RTdat$logRT, main = "Log")	# 對數轉換資料的常態分位數比較圖
+qqline(RTdat$logRT)		# 加上理想常態分佈線
+par(mfrow = c(1, 1))		# 恢復預設的1x1圖片輸出排版
+
+# 練習十三
+# 一樣先假設你按照第三章的步驟產生了含有Jabberwocky詞頻統計的jw.freq物件
+qqnorm(log(jw.freq))
+qqline(log(jw.freq))

@@ -276,3 +276,64 @@ x = 0:10
 plot(x, dpois(0:10, lambda = 3), xlim = c(0, 10), type = "p", main = "Poisson Disitribution")	
 
 dev.off()
+
+# Figure 22
+png(filename = "ch4.figure22.png", width = 1200, height = 900, units = "px",
+    bg = "white", res = 200)
+
+RTdat.mean = mean(RTdat$RT)	
+RTdat.sd = sd(RTdat$RT)		
+RTdat.max = max(RTdat$RT)	
+RTdat.min = min(RTdat$RT)	
+RTdat.norm = dnorm(RTdat.min:RTdat.max, 
+                   mean = RTdat.mean, sd = RTdat.sd)
+plot(density(RTdat$RT))
+lines(x = RTdat.min:RTdat.max, y = RTdat.norm, lty = 2)
+legend("topright", legend = c("Sample", "Theoretical"), lty = c(1, 2))
+
+dev.off()
+
+# Figure 23
+png(filename = "ch4.figure23.png", width = 1200, height = 900, units = "px",
+    bg = "white", res = 200)
+
+qqnorm(RTdat$RT)		
+qqline(RTdat$RT)		
+
+dev.off()
+
+# Figure 24
+png(filename = "ch4.figure24.png", width = 1200, height = 900, units = "px",
+    bg = "white", res = 200)
+
+set.seed(100)
+fake = rnorm(100, 10, 2)	
+qqnorm(fake)
+qqline(fake)
+
+dev.off()
+
+# Figure 25
+png(filename = "ch4.figure25.png", width = 1200, height = 900, units = "px",
+    bg = "white", res = 200)
+
+plot(1:100, log(1:100))
+
+dev.off()
+
+# Figure 26
+RTdat$logRT = log(RTdat$RT)	
+
+png(filename = "ch4.figure26.png", width = 1200, height = 900, units = "px",
+    bg = "white", res = 200)
+
+par(mfrow = c(2, 2))		
+hist(RTdat$RT, main = "Raw")	
+hist(RTdat$logRT, main = "Log")	
+qqnorm(RTdat$RT, main = "Raw")	
+qqline(RTdat$RT)			
+qqnorm(RTdat$logRT, main = "Log")	
+qqline(RTdat$logRT)		
+par(mfrow = c(1, 1))		
+
+dev.off()
