@@ -30,3 +30,13 @@ qqnorm(dist.samp.means)
 qqline(dist.samp.means) 
 
 dev.off()
+
+# Figure 3
+png(filename = "ch5.figure3.png", width = 1200, height = 900, units = "px",
+    res = 200)
+ 
+plot(0:60, dbinom(0:60, size=60, prob=0.5), ylim=c(0, 0.11)) 
+
+segments(0:23, rep(0, 23), 0:23, dbinom(0:23, size = 60, prob = 0.5)) 
+
+dev.off()

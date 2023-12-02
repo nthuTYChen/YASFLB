@@ -100,6 +100,9 @@ all.samps = combn(pop, 5)
 # 雖然很多子集合看起來一樣，但都是不同的組合 
 all.samps 				
 
+# 計算all.samps矩陣中每一欄的平均數 (1 = 行，2 = 欄) 
+dist.samp.means = apply(all.samps, 2, mean) 
+
 # 產生到目前為止步驟產出的結果的圖表
 par(mfrow=c(1, 3)) 			# 把三個圖放在一列三欄的圖表空間 
 plot(density(pop),main="Population")	# 繪製母體的分佈密度圖
@@ -114,7 +117,7 @@ for (i in 2:252) {
 # 最後繪製樣本的分佈密度圖
 plot(density(dist.samp.means), main = "Sample means")
 # 重設圖表空間為1列1欄
-par(mfrow=c(1, 3)) 	
+par(mfrow=c(1, 1)) 	
 
 # 子集合平均數小於或等於(<=) 樣本平均數的數量，除以所有可能子集合數(252)
 sum(dist.samp.means <= samp.mean) / length(dist.samp.means) 
@@ -150,3 +153,42 @@ samp.mean.z
 # 在常態分佈中低於-0.5988083標準差的分佈區域佔比為27.5%
 pnorm(samp.mean.z) 
 #[1] 0.2746503  
+
+# 三之四節
+# 子集合平均數標準差 vs. 實際樣本標準誤
+sd(dist.samp.means) # 0.1669983 
+sd(pop)/sqrt(5) 		# 0.2357023 (比0.167更接近母體的sd(pop) = 0.527)  
+
+# 以更大的母體與樣本比較母體標準差與樣本標準誤
+# 假設一樣無模式的母體，但母體樣本增加到 N = 10,000，0和1的數量各半
+big.pop = c(rep(0, 5000), rep(1, 5000)) 
+# 樣本增加到 n = 50，而0和1的比例維持3:2
+big.samp = c(rep(0, 30), rep(1, 20)) 	
+# 創建有100,000個數值的物件，以便儲存子集合平均數
+big.rand.samp.means = numeric(100000) 
+# 注意，這次模擬資料太多，無法用combn()函數產生子集合，所以改以迴圈採樣
+# 速度也會有點慢
+for (i in 1:100000) { 
+  # 每次迴圈依照i的數值進行指定不同的亂數種子
+  set.seed(i)
+  # 每次迴圈從母體中採樣50筆資料成為子集合，計算平均數後存入儲存容器
+  big.rand.samp.means[i] = mean(sample(big.pop, 50)) 
+} 
+# 我們得出母體標準差：0.07034604
+sd(big.rand.samp.means) 
+# 中央極限定理的估算樣本標準誤：0.06998542，非常接近樣本標準差了！ 
+sd(big.samp)/sqrt(50) 
+
+# 四之一節
+# 複習banana vs. ananab的二項檢定
+# 在取樣60個火星「香蕉」詞的情況下，得到最少23個「banana」的機率
+pbinom(q = 23, size = 60, prob = 0.5) 
+#[1] 0.04623049 
+
+# 取樣60次火星「香蕉」的所有情況 
+plot(0:60, dbinom(0:60, size = 60, prob = 0.5), ylim = c(0, 0.11)) 
+# 以線條標出取樣到0至23個[banana]的子集合(用?segments看看這個函數的用法)
+# segments()函數是在即有的圖表上加上線條。在此例中，是依照x軸0至23的位置
+# 加上線條，而線條的高度是按照dbinom產生的密度數值決定，也因此會和plot()
+# 函數產生的點的高度一致。有些線條不明顯是因為密度趨近於0。
+segments(0:23, rep(0, 23), 0:23, dbinom(0:23, size = 60, prob = 0.5)) 
