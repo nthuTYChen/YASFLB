@@ -192,3 +192,60 @@ plot(0:60, dbinom(0:60, size = 60, prob = 0.5), ylim = c(0, 0.11))
 # 加上線條，而線條的高度是按照dbinom產生的密度數值決定，也因此會和plot()
 # 函數產生的點的高度一致。有些線條不明顯是因為密度趨近於0。
 segments(0:23, rep(0, 23), 0:23, dbinom(0:23, size = 60, prob = 0.5)) 
+
+# 上面是單尾檢定，這邊改成雙尾檢定
+# 抽樣60次的所有可能情況
+plot(0:60, dbinom(0:60, size = 60, prob = 0.5), ylim = c(0, 0.11)) 
+# 左邊尾巴：以線條標出0至23次banana的情況
+segments(0:23, rep(0, 23), 0:23, dbinom(0:23, size = 60, prob = 0.5)) 
+# 右邊尾巴：以線條標出37至60次banana的情況
+segments(37:60, rep(0, 23), 37:60, dbinom(37:60, 60, 0.5)) 
+
+# 四之二節
+
+# 把母體擴大但維持設為37比23的變異體比例進行抽樣與單尾檢定
+population = c(rep("A", 37000), rep("B", 23000)) 
+# 等等會把計算有顯著的單尾二項檢定數目
+sig.count = 0 		
+# 進行10,000次抽樣	 
+for (i in 1:10000) { 	
+	set.seed(i)					# 設定亂數種子
+	our.sample = sample(population,60) 	# 從母體採集60個樣本
+	a.count = sum(our.sample == "A")   	# 60個樣本中A的數目
+	pval = pbinom(min(a.count, 60-a.count), 60, 0.5)  # 單尾檢定
+	if (pval< 0.05) { 				# 如果p值小於.05 
+		sig.count = sig.count+1 		# 就在剛剛創建的sig.count加1
+	} 
+} 
+# 從母體採集的樣本子集合中得到A數目與母體顯著不同的數量
+sig.count/10000 
+#[1] 0.5556
+
+# 五之一節
+# 練習二
+# 20位閩南語兒童詞彙平均數100，母體英語兒童詞彙平均數160，標準差50
+z.score = (160 - 100) / (50 / sqrt(20))
+(1 - pnorm(z.score)) * 2
+#[1] 8.025111e-08
+
+# 五之二節
+# 以t.test()函數進行單一樣本t檢定，檢查假的妹妹VOT資料是否與母體有顯著差異
+set.seed(19483) 					# 先指定亂數種子確保抽樣結果相同 
+# 從常態分佈中抽樣妹妹發音/t/16次的VOT長度並以round()函數四捨五入
+sister = round(rnorm(n = 16, mean = 22, sd = 3)) 	
+sister 						# 看看長怎樣
+#[1] 20 23 29 21 22 21 18 25 25 16 21 21 25 22 21 22
+mean(sister) 					# 樣本平均數等於22
+sd(sister) 						# 標準差3.03315，離3夠近了
+# 進行單一樣本t檢定，母體虛無假設H0為mu = 20 (t.test()預設mu = 0)
+t.test(sister, mu = 20) 	
+
+# 上述單一樣本t檢定的檢定力計算
+power.t.test(n = 16, sig.level = 0.05, 
+             delta = abs(mean(sister) - 20), sd = sd(sister),
+             type = "one.sample", alternative = "two.sided")
+
+# 改成在相同樣本與母體差異為顯著情況下指定檢定力要達到.8，計算所需樣本為何
+power.t.test(power = 0.8, sig.level = 0.05, 
+             delta = abs(mean(sister) - 20), sd = sd(sister), 
+             type = "one.sample", alternative = "two.sided")
