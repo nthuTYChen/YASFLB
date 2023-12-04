@@ -141,3 +141,27 @@ plot(regdat$x, regdat$y, xlab = "x", ylab = "y")
 abline(regdat.lm)
 
 dev.off()
+
+# Figure 14
+
+x = regdat$x		  
+y = regdat$y
+n = nrow(regdat)	
+yx.lm = lm(y ~ x)		
+xy.lm = lm(x ~ y)		
+
+png(file = "ch6.figure14.png", height = 900, width = 1800, units = "px",
+    res = 200)
+
+par(mfrow=c(1, 2))
+
+plot(x, y, xlab = "x", ylab = "y", main = "y ~ x")	
+abline(yx.lm, lwd = 2)                           
+segments(x, y, x, predict(yx.lm))
+plot(x, y, xlab = "x", ylab = "y", main = "x ~ y")
+lines(predict(xy.lm)[order(y)], y[order(y)], lwd = 2)
+segments(x, y, predict(xy.lm), y)
+
+par(mfrow=c(1, 1))
+
+dev.off()

@@ -226,8 +226,127 @@ anova(y ~ x, data = regdat)
 # 三之三節
 # 練習六
 # 手動驗證迴歸模型中x自變量的p值
-# 從迴歸模型中的coefficients欄位取出x自變量的係數，並從原始的表格格式轉換為向量
-x.est = as.vector(regdat.lm$coefficients["x"])
-x.est
-#[1] -0.2300094
-x.se = as.vector(regdat.lm$terms)
+x.coef = -0.23
+x.se = 0.1735
+x.t = x.coef / x.se
+x.n = length(regdat$x)
+# 我們手動計算出的t值沒有進位，所以雙尾p值會稍微有點誤差。如果你的t值直接
+# 輸入summary()中的-1.326，那就會獲得一樣的p值了。再次提醒，這邊的t值是負數
+# 也代表pt()給的是左尾的p值，因此直接乘2就可以得到雙尾p值了
+pt(x.t, df = x.n - 2) * 2
+
+# 三之四節
+# 呈現「以x值預測y值」以及「以y值預測x值」的差異
+x = regdat$x		  # 把變量獨立儲存為不同的物件，簡化每行的程式碼
+y = regdat$y
+n = nrow(regdat)	# 將資料框物件的資料行數做為樣本數
+yx.lm = lm(y ~ x)		# 以x預測y
+xy.lm = lm(x ~ y)		# 以y預測x
+plot(x, y, xlab = "x", ylab = "y", main = "y ~ x")	# 產生y~x的分佈圖
+abline(yx.lm, lwd = 2)                            # 加上y~x模型的迴歸線
+segments(x, y, x, predict(yx.lm))
+# 以segments()函數畫出每個xy坐標到x坐標與線性模型預測的y坐標之間的直線
+plot(x, y, xlab = "x", ylab = "y", main = "x ~ y")
+# 產生x~y的分佈圖，但x軸仍然是x，而y軸仍然是y，以便比較
+lines(predict(xy.lm)[order(y)], y[order(y)], lwd = 2)
+# 因為x軸與y軸與x~y的線性迴歸模型相反，因此只能用lines()和order()等函數
+# 反轉x軸與y軸座標，再畫出x~y模型的迴歸線
+segments(x, y, predict(xy.lm), y)
+# 以segments()函數畫出每個xy坐標到線性模型預測的x坐標與y坐標之間的直線
+
+# 比較不同順序的兩個變量利用cor()產生的r2
+cor(x, y)^2 == cor(y, x)^2	
+#[1] TRUE
+# 比較不同順序的兩個變量利用cor.test()的p值
+cor.test(x, y)$p.value == cor.test(y, x)$p.value	
+#[1] TRUE
+
+# 三之五節
+# 自訂的faker()函數，可依照預設參數或傳入的參數亂數產生X與Y向量
+faker = function(n = 100, err.sd = 1, a = 0, b = 1) {
+ 	x = rnorm(n)			# 根據樣本數從常態分佈中產生對應數量的亂數x
+	y = a+b*x+rnorm(n)*err.sd	# 依照各個參數以及亂數x，透過線性方程式產生y值
+	return(data.frame(x, y))	# 將得到的x值與y值建立為資料框物件回傳
+}
+
+# 依預設參數產生X與Y向量，並將回傳的資料框物件存入fakeA
+fakeA = faker()
+
+#傳入新的n參數產生X與Y向量(其餘採用預設函數)，並將回傳的資料框物件存入fakeB
+fakeB = faker(n = 1000)
+
+fake1 = faker(err.sd = 3)	# 得到隨機誤差非常大的資料
+plot(fake1$x, fake1$y)		# 產生相關分佈圖看看分佈情況
+lm(y ~ x, data=fake1)		  # 有得到「截距為0且斜率為1」的線性模型嗎？
+fake2 = faker(err.sd = 0.1)	# 得到隨機誤差極小的資料
+plot(fake2$x, fake2$y)
+lm(y ~ x, data = fake2)		# 有得到「截距為0且斜率為1」的線性模型嗎？
+
+fake3 = faker(n = 1000)	# 樣本數很高
+plot(fake3$x, fake3$y)	# 產生存在些許隨機誤差的資料分佈
+lm(y ~ x, data = fake3)	# 有得到「截距為0且斜率為1」的線性模型嗎？
+fake4 = faker(n = 10)	# 樣本數極小
+plot(fake4$x, fake4$y)	# 存在些許隨機誤差，但資料分佈趨勢更不明顯
+lm(y ~ x, data = fake4)	# 有得到「截距為0且斜率為1」的線性模型嗎？
+
+# 回到詞頻與時長的例子
+# 建立線性迴歸模型
+fd.lm = lm(Dur ~ LogFreq, data = fd)
+# 只取得線性模型摘要報告中的係數部份
+summary(fd.lm)$coefficients	
+#              Estimate Std. Error    t value    Pr(>|t|)
+#(Intercept) 252.615617   1.228796 205.579717 0.000000000
+#LogFreq      -1.201109   0.383258  -3.133944 0.001754423
+
+# 以再抽樣的程序驗證LogFreq在迴歸模型中的斜率p值.0018
+# fd線性模型的斜率(−1.201…)
+read.slope = summary(fd.lm)$coefficient[2]	
+# 累積有多少斜率大於|−1.201…|
+count.slopes = 0			
+# 以for迴圈進行10000次再抽樣
+for(i in 1:10000) {
+  # 根據i指定亂數種子
+	set.seed(i)					
+  # 隨機抽出並排序LogFreq
+	LogFreq.new = sample(fd$LogFreq)		
+	# 因為下面又是一個新的隨機運算，以i*10再次指定亂數種子
+	# 不用i值的原因是避免和上面的sample()進行相同的亂數運算
+	set.seed(i * 10)				
+	# 隨機抽出並排序Dur
+	Dur.new = sample(fd$Dur)			
+	# 以隨機排序資料進行線性迴歸分析
+	model.new = lm(Dur.new ~ LogFreq.new)	
+	rand.slope = summary(model.new)$coefficient[2]	# 得到新斜率
+	# 隨機斜率絕對值是否大於等於樣本斜率絕對值
+	# 也就是隨機斜率是否大於1.205或小於-1.205
+	if(abs(rand.slope) >= abs(read.slope)) {	
+		count.slopes = count.slopes + 1	# 是的話累積次數
+  }
+}
+
+# 計算大於1.205或小於-1.205樣本斜率的比例，接近.0018
+count.slopes / 10000
+# [1] 0.002
+
+# 練習七
+# 設定沒有任何資料點的底圖
+plot(fd$LogFreq, fd$Dur, type = "n", xlab = "Log Frequency", 
+     ylab = "Duration (ms)")
+
+for(i in 1:10000) {
+  # 根據i指定亂數種子
+  set.seed(i)					
+  # 隨機抽出並排序LogFreq
+  LogFreq.new = sample(fd$LogFreq)		
+  # 因為下面又是一個新的隨機運算，以i*10再次指定亂數種子
+  # 不用i值的原因是避免和上面的sample()進行相同的亂數運算
+  set.seed(i * 10)				
+  # 隨機抽出並排序Dur
+  Dur.new = sample(fd$Dur)			
+  # 以隨機排序資料進行線性迴歸分析
+  model.new = lm(Dur.new ~ LogFreq.new)	
+  # 根據再抽樣的迴歸模型加上迴歸線
+  abline(model.new)
+}
+
+abline(fd.lm, lwd = 2, col = "red")
