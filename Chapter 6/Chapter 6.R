@@ -224,3 +224,10 @@ cor.test(regdat$x, regdat$y)
 anova(y ~ x, data = regdat)
 
 # 三之三節
+# 練習六
+# 手動驗證迴歸模型中x自變量的p值
+# 從迴歸模型中的coefficients欄位取出x自變量的係數，並從原始的表格格式轉換為向量
+x.est = as.vector(regdat.lm$coefficients["x"])
+x.est
+#[1] -0.2300094
+x.se = as.vector(regdat.lm$terms)
