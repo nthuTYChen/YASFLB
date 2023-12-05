@@ -165,3 +165,54 @@ segments(x, y, predict(xy.lm), y)
 par(mfrow=c(1, 1))
 
 dev.off()
+
+# Figure 15
+png(file = "ch6.figure15.png", height = 900, width = 1200, units = "px",
+    res = 200)
+
+fakecor = read.delim("scatterplots.txt")	  
+attach(fakecor)					                    
+plot(DX, DY)					                     
+abline(lm(DY ~ DX), lty = 2)			          
+loess.75 = loess(DY ~ DX)			              
+lines(predict(loess.75), lty = 1, lwd = 2)
+loess.25 = loess(DY ~ DX, span = 0.25)	   
+lines(predict(loess.25), lty = 1)		        
+legend("topleft", lty = c(2, 1, 1), lwd = c(1, 2, 1),
+       legend = c("Linear","Loess.25","Loess.75"))
+
+dev.off()
+
+detach(fakecor)
+
+# Figure 16
+
+set.seed(1)				
+age = runif(100) - 0.5			
+acc = age ^ 2 + rnorm(100) / 10
+
+png(file = "ch6.figure16.png", height = 900, width = 1200, units = "px",
+    res = 200)
+
+plot(age, acc)			    
+acc = acc[order(age)]		
+age = age[order(age)]		
+poly.lm = lm(acc ~ I(age ^ 2))	        
+lines(age, predict(poly.lm), lty = 1)	
+abline(lm(acc ~ age), lty = 2)			   
+legend("topleft", lty = c(1, 2), 	
+       legend=c("Poly", "Linear"), bg = "white")
+
+dev.off()
+
+# Figure 17
+
+library(languageR)		
+fd = read.delim("freqdur.txt")
+
+png(file = "ch6.figure17.png", height = 900, width = 1200, units = "px",
+    res = 200)
+
+pairscor.fnc(fd[,2:5 ])	
+
+dev.off()
