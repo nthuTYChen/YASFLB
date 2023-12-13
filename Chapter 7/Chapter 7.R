@@ -147,3 +147,43 @@ fs.den = df(fs, df1 = 10, df2 = 5)
 # 產生分佈密度圖
 plot(x = fs, y = fs.den, xlab = "F values", ylab = "Density", type = "l",
      ylim = c(0, 1), main = "F distribution (df1 = 10, df2 = 5)")
+
+# 再次使用bg資料以研究1的樣本進行變異數F檢定
+bg = read.table("BoysGirls.txt", header = T)		# 讀取資料
+study1 = subset(bg, Study == 1)			            # 將研究1的資料子集合取出
+boys1 = subset(study1, Gender == "Boy") 		    # 男孩資料取出成為boys1
+girls1 = subset(study1, Gender == "Girl")		    # 女孩資料取出成為girls1
+var.test(boys1$Measure, girls1$Measure)  
+
+#F test to compare two variances
+
+#data:  boys1$Measure and girls1$Measure
+#F = 1.9368, num df = 9, denom df = 9, p-value = 0.339
+#alternative hypothesis: true ratio of variances is not equal to 1
+#95 percent confidence interval:
+#  0.4810842 7.7977146
+#sample estimates:
+#  ratio of variances 
+# 1.936842
+
+# 因為F值比1大，我們將「alternative」參數設定為「greater」，計算F檢定的右尾p值
+var.test(boys1$Measure, girls1$Measure, alternative = "greater")  
+
+# 練習四
+study2 = subset(bg, Study == 2)			            # 將研究2的資料子集合取出
+boys2 = subset(study2, Gender == "Boy") 		    # 男孩資料取出成為boys2
+girls2 = subset(study2, Gender == "Girl")		    # 女孩資料取出成為girls2
+var.test(boys2$Measure, girls2$Measure)         # 雙尾p值=.002052
+# F值比1小，因此計算「左尾」的單尾p值=.001026 x 2 = .002052
+var.test(boys2$Measure, girls2$Measure, alternative = "less")
+
+# 手動驗證，先計算F值
+f.study2 = var(boys2$Measure) / var(girls2$Measure) # 0.0996
+# F值比1小，因此pf()函數給予小於F值區域的機率就等於左尾p值
+p.study2 = pf(f.study2, df1 = nrow(boys2) - 1, df2 = nrow(girls2) - 1) # .001026
+p.study2 * 2 # .002052, 驗證成功
+
+# 二之三之三
+# 針對BG資料的研究2，對男孩女孩語言表現差異進行Welch t-test(不設定equal.var參數)
+t.test(boys2$Measure, girls2$Measure)
+
