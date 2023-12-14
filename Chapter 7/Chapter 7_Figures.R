@@ -63,3 +63,52 @@ ggplot(data = ci.test, mapping = aes(x = x, y = sample.mean, color = includeMu))
 
 ggsave(filename = "ch7.figure3.png", width = 1200, height = 900, units = "px",
        dpi = 200)
+
+# Figure 4
+png(filename = "ch7.figure4.png", width = 1200, height = 900, units = "px", res = 200)
+
+error.bar = function(x, y, upper, lower = upper, length = 0.1,...) { 
+  if(length(x) != length(y) | length(y) !=length(lower) | 
+     length(lower) != length(upper)) 
+    stop("vectors must be same length") 
+  arrows(x, y + upper, x, y - lower, 
+         angle = 90, code = 3, length = length, ...) 
+} 
+sister.plot = barplot(22, ylim = c(0,30), 
+                      ylab = "Mean VOT (ms)", main = "Sister vs. Martians") 
+conf95 = qt(0.05/2, df = 15) * (3/sqrt(16))
+error.bar(sister.plot, 22, conf95) 
+abline(h = 20, lty = 2)
+
+dev.off()
+
+# Figure 5
+sister.mean = data.frame(Speaker = "My Sister", VOT = 22)
+library(ggplot2) 
+ggplot(data = sister.mean, mapping = aes(x = Speaker, y = VOT)) + 
+  geom_bar(fill = "white", color = "black", stat = "identity") + 	
+  geom_errorbar(mapping = aes(ymin = VOT-conf95, 
+                              ymax = VOT+conf95), width = 0.2) +
+  theme_bw()
+
+ggsave(filename = "ch7.figure5.png", width = 1200, height = 900, units = "px",
+       dpi = 200)
+
+# Figure 6
+png(filename = "ch7.figure6.png", width = 1200, height = 900, units = "px", res = 200)
+
+bg = read.delim("BoysGirls.txt")
+study1 = subset(bg, Study == 1)
+t.res1 = t.test(Measure ~ Gender, data = study1, var.equal = T) 
+conf95.upper = t.res1$conf.int[2]
+conf95.lower = t.res1$conf.int[1]
+conf95 = (conf95.upper - conf95.lower) / 2
+boys1 = subset(study1, Gender == "Boy") 
+girls1 = subset(study1, Gender == "Girl")
+bg.plot = barplot(abs(mean(boys1$Measure) - mean(girls1$Measure)),
+                  names.arg=c("Boys vs. Girls"), ylab = "Difference", 
+                  ylim = c(0, 3.5)) 	
+error.bar(bg.plot, abs(mean(boys1$Measure) - mean(girls1$Measure)), 
+          conf95) 
+
+dev.off()

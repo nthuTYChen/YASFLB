@@ -294,3 +294,61 @@ rand.int.lower = rand.mean + qt(p = 0.025, df = n - 1) * (rand.sd/sqrt(n))
 # 平均數(也就是妹妹所有的/t/的VOT數據平均)有可能不是「20」，而我們可以在顯著水準
 # 為.05的情況下宣稱推翻虛無假設。
 # 太好了，我們的妹妹不是火星人！那你的妹妹是嗎？:)
+
+# 三之三
+# 建立繪製誤差線的自訂函數
+error.bar = function(x, y, upper, lower = upper, length = 0.1,...) { 
+  if(length(x) != length(y) | length(y) !=length(lower) | 
+     length(lower) != length(upper)) 
+    stop("vectors must be same length") 
+  	arrows(x, y + upper, x, y - lower, 
+     		angle = 90, code = 3, length = length, ...) 
+} 
+# 我們用妹妹的VOT例子來試試看 
+# 先以樣本平均數繪製長條圖並將長條圖暫存於sister.plot物件中
+sister.plot = barplot(22, ylim = c(0,30), 
+                      ylab = "Mean VOT (ms)", main = "Sister vs. Martians") 
+# 根據<公式二十>計算在95%信賴區間的條件下，從平均值往上加以及往下減的範圍
+conf95 = qt(0.05/2, df = 15) * (3/sqrt(16))
+# 使用自訂函數產生含有信賴區間誤差線的長條圖
+error.bar(sister.plot, 22, conf95) 
+# 在圖上以虛線標出火星人的平均數(假設母體平均值)，落在妹妹VOT的95%信賴區間之外
+abline(h = 20, lty = 2)
+                                  
+# 改以ggplot2繪製有信賴區間的長條圖
+# ggplot2是以資料框格式為基礎，將不同的欄位對應到不同的圖表元素
+# 所以讓我們建立一個只有一列但有兩個欄位的火星人妹妹VOT的資料框
+sister.mean = data.frame(Speaker = "My Sister", VOT = 22)
+library(ggplot2) # 記得先載入套件 
+# 在底圖中將x軸對應到sister.mean的Speaker欄位，再將y軸對應到VOT欄位
+ggplot(data = sister.mean, mapping = aes(x = Speaker, y = VOT)) + 
+  # 使用geom_bar()加上長條圖呈現資料，線條採用黑色，而填滿採用白色
+  # "stat = "identity"的意思是按照原始數值呈現長條高度，而非另外計算其他的統計數據
+  geom_bar(fill = "white", color = "black", stat = "identity") + 	
+  # 在geom_errorbar()裡將樣本平均數加上信賴區間上下限的數值對應到ymin與ymax元素
+  # 並設定誤差線的寬度為0.2
+  geom_errorbar(mapping = aes(ymin = VOT-conf95, 
+                              ymax = VOT+conf95), width = 0.2) +
+  theme_bw()
+
+# 以男孩女孩例子示範如何從t檢定結果提取95%信賴區間數據，並產生長條圖
+# 有需要就再讀取一次檔案吧！
+bg = read.delim("BoysGirls.txt")
+study1 = subset(bg, Study == 1)
+# 進行非成對假設變異數相同t檢定，檢定結果存入t.res1
+t.res1 = t.test(Measure ~ Gender, data = study1, var.equal = T) 
+# 取得95%信賴區間的上下限值
+conf95.upper = t.res1$conf.int[2]
+conf95.lower = t.res1$conf.int[1]
+# 計算95%信賴區間從平均數往上與往下變化的數值：想出來這個算式的邏輯了嗎？
+conf95 = (conf95.upper - conf95.lower) / 2
+boys1 = subset(study1, Gender == "Boy") 
+girls1 = subset(study1, Gender == "Girl")
+# 產生呈現兩組樣本平均數差異的長條圖，設定x軸與y軸標籤，再設定y軸範圍
+# 產生呈現兩組樣本平均數差異絕對值的長條圖，設定x軸與y軸標籤，再設定y軸範圍
+bg.plot = barplot(abs(mean(boys1$Measure) - mean(girls1$Measure)),
+                  names.arg=c("Boys vs. Girls"), ylab = "Difference", 
+                  ylim = c(0, 3.5)) 	
+# 加上誤差線 
+error.bar(bg.plot, abs(mean(boys1$Measure) - mean(girls1$Measure)), 
+          conf95) 

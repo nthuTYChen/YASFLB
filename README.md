@@ -9,6 +9,6 @@ Copyright 2023
 
 本資料庫收錄在「再談一回統計與語言學」一書中各章節所使用的R程式碼與資料檔案。
 
-語言分析樣本材料由麥傑教授提供，來源為<a href="http://lngproc.ccu.edu.tw/lngmyers/statsresources.html" target="_blank">http://lngproc.ccu.edu.tw/lngmyers/statsresources.html</a>。
+部份語言分析樣本材料由麥傑教授提供，來源為<a href="http://lngproc.ccu.edu.tw/lngmyers/statsresources.html" target="_blank">http://lngproc.ccu.edu.tw/lngmyers/statsresources.html</a>。
 
-<i>上次更新：2023/11/30</i>
+<i>上次更新：2023/12/14</i>
