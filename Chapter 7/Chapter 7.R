@@ -187,3 +187,83 @@ p.study2 * 2 # .002052, 驗證成功
 # 針對BG資料的研究2，對男孩女孩語言表現差異進行Welch t-test(不設定equal.var參數)
 t.test(boys2$Measure, girls2$Measure)
 
+# 二之三之四
+# 以手機計算方式驗證成對t檢定的統計數字
+# 你又重開R了對不對？好啦，我們再重頭開始。先逐步獲得子集合進行成對t檢定
+nv = read.table("NounsVerbs.txt", header = T) 
+study3 = subset(nv, Study == 3) 
+nouns3 = subset(study3, WordType == "Noun") 
+verbs3 = subset(study3, WordType == "Verb")
+nv3.t = t.test(nouns3$Measure, verbs3$Measure, paired = T)
+# 從成對t檢定結果中取得統計數據(t值)。原始資料型態為表格(table)
+# 利用as.vector()轉換純數字向量
+tval1 = as.vector(nv3.t$statistic)
+# 用剛剛的公式們計算成對t檢定的t值
+# 兩個成對的向量互減，得到每對成對數值的差異
+Difs = nouns3$Measure - verbs3$Measure	
+MD = mean(Difs) 			              		# 成對差異的平均數
+SD = sd(Difs) 				                	# 標準差
+SE = SD/sqrt(nrow(nouns3))	         		# 標準誤
+tval2 = MD/SE 					                # 自己算出來的t值
+tval1 == tval2 					                # 和t.test()算出來的一樣！
+
+# 二之三之五
+# 先假設你已經讀取了「BoysGirls.txt」，並以subset()函數取得了子集合
+t.test(boys1$Measure, girls1$Measure) 				# 進行非成對Welch t檢定 
+t.test(Measure ~ Gender, data = study1) 	    # 以Y ~ X語法進行相同檢定 
+# 進行成對t檢定：再次提醒，每個受試者的名詞和動詞排序要一樣，才能真的「成對」
+t.test(nouns3$Measure, verbs3$Measure, paired = T) 
+# 以Y ~ X語法進行相同檢定
+t.test(Measure ~ WordType, data = study3, paired = T) 
+
+# 以Y ~ x語法使用boxplot()
+boxplot(Measure ~ Gender, data = study1) 		# 看起來應該有顯著差異喔！
+
+# 以Y ~ X語法驗證相關性測驗、非成對t檢定、與迴歸模型中相同的統計數據
+# 先以條件判斷Gender欄位是否儲存「Girl」的字串，並得到儲存TRUE與FALSE的向量
+girlsOrNot = (study1$Gender == "Girl")
+# 將1乘上TRUE跟FALSE的向量，神奇的得到了虛擬編碼的向量！
+study1$Girlness = 1 * girlsOrNot
+head(study1)					                    # 確認看看吧！
+cor.test(study1$Girlness, study1$Measure)	# 請注意df、t和p值 
+# 有沒有看到一樣的df、t和p值？
+summary(lm(Measure ~ Girlness, data = study1))	
+# 直接以Gender做為自變量產生相同結果，但lm()比較聰明會自動轉換字串欄位為虛擬編碼 
+summary(lm(Measure ~ Gender, data = study1))
+# 進行非成對t檢定並假設變異數相同，得到相同結果
+t.test(Measure ~ Girlness, data = study1, var.equal = T)	
+# 非成對Welch t檢定的結果就不太一樣了
+t.test(Measure ~ Girlness, data = study1) 	 	
+
+# 三之一節
+# 計算Cohen's d(t檢定的效應值)
+# 要先安裝載入套件
+install.packages("lsr", dependencies = T, ask = F)
+library(lsr) 				 
+# 假設你在R裡面還有剛剛整理過的BoysGirls.txt以及NounsVerbs.txt資料
+cohensD(boys1$Measure) 		             		# 單一樣本t檢定效應值(假設µ0 = 0) 
+mean(boys1$Measure)/sd(boys1$Measure)		  # 用<公式十五>算一次，結果一樣 
+cohensD(boys1$Measure, girls1$Measure)  	# 非成對(相同變異數) t檢定效應值 
+cohensD(Measure ~ Gender, data = study1)	# 用Y ~ X語法，結果和上面一樣 
+# Welch's t檢定效應值 
+cohensD(boys2$Measure, girls2$Measure, method = "unequal") 
+# 成對t檢定效應值	 
+cohensD(nouns3$Measure, verbs3$Measure, method = "paired") 
+
+# 練習五
+# 非成對(相同變異數) t檢定效應值
+# 必須先計算整合變異數(公式七)
+x.ss = sum((boys1$Measure - mean(boys1$Measure))^2)
+y.ss = sum((girls1$Measure - mean(girls1$Measure))^2)
+sp = sqrt((x.ss + y.ss) / (nrow(boys1) - 1 + nrow(girls1) - 1))
+# 要以abs()函數取兩個樣本差異的絕對值，因為Cohen's d不可能為負數
+abs(mean(boys1$Measure) - mean(girls1$Measure)) / sp
+
+# 成對t檢定效應值
+diffs = nouns3$Measure - verbs3$Measure
+abs(mean(diffs)) / sd(diffs)
+
+# 三之二節
+# 假設你在R裡面還有剛剛整理過的BoysGirls.txt資料
+# 成對假設變異數相等t檢定
+t.test(Measure ~ Gender, study1)
