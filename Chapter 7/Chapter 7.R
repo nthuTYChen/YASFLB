@@ -267,3 +267,30 @@ abs(mean(diffs)) / sd(diffs)
 # 假設你在R裡面還有剛剛整理過的BoysGirls.txt資料
 # 成對假設變異數相等t檢定
 t.test(Measure ~ Gender, study1)
+
+# 練習六
+# 因做為解答指定亂數種子，所以結果不一定和你自行抽樣一模一樣
+set.seed(6)
+# 一、從平均數為「0」以及標準差為「1」的常態分佈抽樣50個數值。
+rand.sample = rnorm(n = 20, mean = 22, sd = 3)
+# 二、將樣本和母體平均數虛無假設為「0」進行單一樣本t檢定。
+t.test(x = rand.sample, mu = 20)
+# 三、手動計算驗證單一樣本t檢定中的雙尾t值與p值。
+rand.mean = mean(rand.sample)
+rand.sd = sd(rand.sample)
+n = length(rand.sample)
+rand.t = (rand.mean - 20) / (rand.sd/sqrt(n))  # t值與檢定結果相同
+# t值大於0，所以以1減去pt()回傳之數值以得到右尾p值
+rand.p = 1 - pt(q = rand.t, df = n - 1)       
+rand.p * 2  # 與t檢定雙尾p值相同
+# 四、手動計算驗證單一樣本t檢定中的95%信賴區間
+# 取得代表右尾2.5%區域界限的95%信賴區間上限
+rand.int.upper = rand.mean + qt(p = 0.975, df = n - 1) * (rand.sd/sqrt(n))
+# 取得代表左尾2.5%區域界限的95%信賴區間下限(因為qt()產生的t值為負數，所以
+# 加總後的數值比樣本平均數低)
+rand.int.lower = rand.mean + qt(p = 0.025, df = n - 1) * (rand.sd/sqrt(n))
+# 五、推論95%信賴區間代表是否支持推翻虛無假設
+# 我們的95%信賴區間21.094至24.068，並不包括虛無假設的「20」。這代表真實的母體
+# 平均數(也就是妹妹所有的/t/的VOT數據平均)有可能不是「20」，而我們可以在顯著水準
+# 為.05的情況下宣稱推翻虛無假設。
+# 太好了，我們的妹妹不是火星人！那你的妹妹是嗎？:)
