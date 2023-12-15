@@ -341,7 +341,7 @@ t.res1 = t.test(Measure ~ Gender, data = study1, var.equal = T)
 conf95.upper = t.res1$conf.int[2]
 conf95.lower = t.res1$conf.int[1]
 # 計算95%信賴區間從平均數往上與往下變化的數值：想出來這個算式的邏輯了嗎？
-conf95 = (conf95.upper - conf95.lower) / 2
+conf95.2 = (conf95.upper - conf95.lower) / 2
 boys1 = subset(study1, Gender == "Boy") 
 girls1 = subset(study1, Gender == "Girl")
 # 產生呈現兩組樣本平均數差異的長條圖，設定x軸與y軸標籤，再設定y軸範圍
@@ -351,4 +351,156 @@ bg.plot = barplot(abs(mean(boys1$Measure) - mean(girls1$Measure)),
                   ylim = c(0, 3.5)) 	
 # 加上誤差線 
 error.bar(bg.plot, abs(mean(boys1$Measure) - mean(girls1$Measure)), 
-          conf95) 
+          conf95.2) 
+
+# 改用ggplot2產生類似的圖表
+# 先組合含有xLab、Diff、以及CI三個欄位的資料框，並放入對應的數值
+bg.df = data.frame(xLab = "Boys vs. Girls", 
+                   Diff = abs(mean(boys1$Measure) - mean(girls1$Measure)),
+                              CI = conf95.2)
+library(ggplot2) # 記得先載入套件
+# 這裡比較新的函數是以scale_y_continuous()設定y軸的範圍，並且使用labs()
+# 將x軸標籤隱藏
+ggplot(data = bg.df, mapping = aes(x = xLab, y = Diff)) +
+	geom_bar(color = "black", fill = "white", stat = "identity") +
+ 	geom_errorbar(mapping = aes(ymin = Diff - CI, ymax = Diff + CI),
+						width = 0.2) +
+	scale_y_continuous(limits = c(0, 3.5)) +
+  labs(x = NULL, y = "Difference") +
+	theme_bw()
+
+# 用「NounsVerbs.txt」中的「研究3」的名詞與動詞例子繪製成對雙樣本t檢定的95%信賴區間
+# 有需要就再讀取一次檔案吧！
+nv = read.delim("NounsVerbs.txt")
+study3 = subset(nv, Study == 3)
+# 先進行成對雙樣本t檢定
+t.res3 = t.test(Measure ~ WordType, data = study3, paired = T) 	
+# 以同樣的方式從檢定結果中提取信賴區間上下限，並計算信賴區間的變動值
+conf95.upper = t.res3$conf.int[2]
+conf95.lower = t.res3$conf.int[1]
+conf95.3 = (conf95.upper - conf95.lower) / 2
+nouns3 = subset(study3, WordType == "Noun")
+verbs3 = subset(study3, WordType == "Verb")
+# 計算平均成對差異
+Diff.mean = mean(abs(N - V))
+# 繪製圖表並命名
+nv.plot = barplot(Diff.mean, names.arg=c("Nouns vs. Verbs"), 
+                    ylab = "Mean of Paired Difference ", ylim=c(0, 3.5))
+# 加上誤差線
+error.bar(nv.plot, Diff.mean, conf95.3)
+
+# 第四節
+# 進行非母數檢定，請先確認你已經在之前的程式碼中讀取必要的資料囉！
+wilcox.test(boys1$Measure, girls1$Measure) 			             # 曼－惠特尼U檢定
+wilcox.test (Measure ~ Gender, data = study1)       	       # 用X ~ Y語法 
+#Wilcoxon rank sum exact test
+
+#data:  Measure by Gender
+#W = 84, p-value = 0.008931
+#alternative hypothesis: true location shift is not equal to 0
+wilcox.test(nouns3$Measure, verbs3$Measure, paired = T)      # 威爾克森符號等級檢定
+wilcox.test (Measure ~ WordType, data = study3, paired = T)  # 用X~Y語法
+#       Wilcoxon signed rank exact test
+
+#data:  Measure by WordType
+#V = 55, p-value = 0.001953
+#alternative hypothesis: true location shift is not equal to 0
+
+# 比較大樣本偏態分佈下的成對假設變異數相等t檢定與U檢定的結果
+t.sig = 0 			# 等等會累加t檢定p值小於.05的次數 
+u.sig = 0 			# 等等會累加U檢定p值小於.05的次數 
+conflict = 0 		# 等等會填入顯著性不同的次數 
+for (i in 1:10000) { 
+  set.seed(i)           # 指定sample1抽樣的隨機種子
+  # 從均勻分佈中抽樣20筆資料
+  sample1 = runif(20) 
+  set.seed(i * 10)      # 指定samepl2抽樣的隨機種子
+  sample2 = runif(20) 
+  # 進行t檢定與U檢定取得p值
+  t.p = t.test(sample1, sample2, var.equal = T)$p.value 
+  u.p = wilcox.test(sample1, sample2)$p.value 
+  if (t.p < 0.05) 
+  { 
+    t.sig = t.sig + 1   # 累積t檢定顯著的數目
+  } 
+  if (u.p < 0.05) 
+  { 
+    u.sig = u.sig + 1   # 累積u檢定顯著的數目
+  } 
+  # "|"是「或」的意思，你有辦法自己解讀這一行的條件嗎？
+  if ((t.p < 0.05 & u.p >= 0.05) | (t.p >= 0.05 & u.p < 0.05)) 
+  { 
+    conflict = conflict + 1   # 累積兩個檢定顯著結果不同的數目
+  }  
+} 
+t.sig / 10000 	# 0.0509
+u.sig / 10000 	# 0.0498
+conflict / 10000 	#  0.0131 
+
+# 練習七
+# 改以極度偏態進行模擬
+t.sig = 0 			# 等等會累加t檢定p值小於.05的次數 
+u.sig = 0 			# 等等會累加U檢定p值小於.05的次數 
+conflict = 0 		# 等等會填入顯著性不同的次數 
+for (i in 1:10000) { 
+  set.seed(i)           # 指定sample1抽樣的隨機種子
+  # 從常態分佈中抽樣20筆資料並轉換為指數
+  sample1 = exp(rnorm(20))
+  set.seed(i * 10)      # 指定samepl2抽樣的隨機種子
+  sample2 = exp(rnorm(20))
+  # 進行t檢定與U檢定取得p值
+  t.p = t.test(sample1, sample2, var.equal = T)$p.value 
+  u.p = wilcox.test(sample1, sample2)$p.value 
+  if (t.p < 0.05) 
+  { 
+    t.sig = t.sig + 1   # 累積t檢定顯著的數目
+  } 
+  if (u.p < 0.05) 
+  { 
+    u.sig = u.sig + 1   # 累積u檢定顯著的數目
+  } 
+  # "|"是「或」的意思，你有辦法自己解讀這一行的條件嗎？
+  if ((t.p < 0.05 & u.p >= 0.05) | (t.p >= 0.05 & u.p < 0.05)) 
+  { 
+    conflict = conflict + 1   # 累積兩個檢定顯著結果不同的數目
+  }  
+} 
+t.sig / 10000 	# 0.0383
+u.sig / 10000 	# 0.0505
+conflict / 10000 	#  0.042
+# 從模擬結果可以發現，t檢定在樣本極度偏態且樣本偏小(n = 20)的情況下，更不容易
+# 檢測到有顯著差異的樣本(3.83%)，而U檢定的結果則是更接近預期的5%機率(5.05%)。
+# 兩種檢定相反結果的數量也增加了(4.2%)
+
+# 再次進行模擬，樣本數增加至100
+t.sig = 0 			
+u.sig = 0 			
+conflict = 0 		
+for (i in 1:10000) { 
+  set.seed(i)           
+  # 從常態分佈中抽樣100筆資料並轉換為指數
+  sample1 = exp(rnorm(100))
+  set.seed(i * 10)      
+  sample2 = exp(rnorm(100))
+  t.p = t.test(sample1, sample2, var.equal = T)$p.value 
+  u.p = wilcox.test(sample1, sample2)$p.value 
+  if (t.p < 0.05) 
+  { 
+    t.sig = t.sig + 1  
+  } 
+  if (u.p < 0.05) 
+  { 
+    u.sig = u.sig + 1   
+  } 
+  if ((t.p < 0.05 & u.p >= 0.05) | (t.p >= 0.05 & u.p < 0.05)) 
+  { 
+    conflict = conflict + 1   
+  }  
+} 
+t.sig / 10000 	# 0.0473
+u.sig / 10000 	# 0.0514
+conflict / 10000 	#  0.0569
+
+# 樣本數增加5倍的情況下，t檢定與U檢定的顯著結果機率都非常接近理論值了，分別
+# 只差距0.27%與0.14%。這次的模擬更說明當樣本數足夠時，t檢定在樣本分佈違反
+# 常態分佈的情況下，仍然擁有接近非母數檢定的效力唷！

@@ -102,13 +102,47 @@ study1 = subset(bg, Study == 1)
 t.res1 = t.test(Measure ~ Gender, data = study1, var.equal = T) 
 conf95.upper = t.res1$conf.int[2]
 conf95.lower = t.res1$conf.int[1]
-conf95 = (conf95.upper - conf95.lower) / 2
+conf95.2 = (conf95.upper - conf95.lower) / 2
 boys1 = subset(study1, Gender == "Boy") 
 girls1 = subset(study1, Gender == "Girl")
 bg.plot = barplot(abs(mean(boys1$Measure) - mean(girls1$Measure)),
                   names.arg=c("Boys vs. Girls"), ylab = "Difference", 
                   ylim = c(0, 3.5)) 	
 error.bar(bg.plot, abs(mean(boys1$Measure) - mean(girls1$Measure)), 
-          conf95) 
+          conf95.2) 
+
+dev.off()
+
+# Figure 7
+bg.df = data.frame(xLab = "Boys vs. Girls", 
+                   Diff = abs(mean(boys1$Measure) - mean(girls1$Measure)),
+                   CI = conf95.2)
+
+ggplot(data = bg.df, mapping = aes(x = xLab, y = Diff)) +
+  geom_bar(color = "black", fill = "white", stat = "identity") +
+  geom_errorbar(mapping = aes(ymin = Diff - CI, ymax = Diff + CI),
+                width = 0.2) +
+  scale_y_continuous(limits = c(0, 3.5)) +
+  labs(x = NULL, y = "Difference") +
+  theme_bw()
+
+ggsave(filename = "ch7.figure7.png", width = 1200, height = 900, units = "px",
+       dpi = 200)
+
+# Figure 8
+png(filename = "ch7.figure8.png", width = 1200, height = 900, units = "px", res = 200)
+
+nv = read.delim("NounsVerbs.txt")
+study3 = subset(nv, Study == 3)
+t.res3 = t.test(Measure ~ WordType, data = study3, paired = T) 	
+conf95.upper = t.res3$conf.int[2]
+conf95.lower = t.res3$conf.int[1]
+conf95.3 = (conf95.upper - conf95.lower) / 2
+nouns3 = subset(study3, WordType == "Noun")
+verbs3 = subset(study3, WordType == "Verb")
+Diff.mean = mean(abs(N - V))
+nv.plot = barplot(Diff.mean, names.arg=c("Nouns vs. Verbs"), 
+                  ylab = "Mean of Paired Difference ", ylim=c(0, 3.5))
+error.bar(nv.plot, Diff.mean, conf95.3)
 
 dev.off()
