@@ -66,3 +66,31 @@ ggplot(data = VMC.df, mapping = aes(x = Vowel2, y = Freq,
 mosaicplot(VowelCombos.mat, cex = 1, main = "VowelCombos") 
 # 使用table()產生的列聯表繪製馬賽克圖會少了些資訊
 mosaicplot(VowelCombos.tab, cex = 1, main = "VowelCombos")
+
+# 使用vcs套件繪製資訊更豐富的馬賽克圖
+# 假設你還沒安裝vcd套件的話，就先安裝，也別忘了載入套件！
+install.packages("vcd", dependencies = T, ask = F)	
+library(vcd)				
+# 使用矩陣物件。highlighting參數決定根據哪個因子強調差異，並設定強調差異的拼貼顏色
+mosaic(VowelCombos.mat, highlighting = "Vowel2",
+         highlighting_fill = c("black", "white", "grey"))
+
+# 產生預期平均分佈的矩陣並繪製對應的馬賽克圖
+VowelCombos.exp = VowelCombos.mat 	# 複製舊的矩陣物件，以便保留列與欄的名稱
+# 建立一個3x3的新矩陣，並取代複製物件中的矩陣數值，但保留列與欄的名稱
+VowelCombos.exp[,] = matrix(c(25.84, 4.18, 7.98,
+                              17.68, 2.86, 5.46,
+                              24.48, 3.96, 7.56), ncol = 3)
+VowelCombos.exp 				           # 檢查平均分佈的列聯表
+# 產生預期平均分佈的馬賽克圖
+mosaicplot(VowelCombos.exp, cex = 1, main = "VowelCombos (Expected)")
+
+# 三之二節
+# 使用卡方檢定驗證實驗觀察到的雙詞頻率是否顯著不同於理論的雙詞分佈
+bobo = c(24, 21, 43, 12)		    # 將實際觀察到的分佈儲存為一個向量物件
+chance = c(2/9, 2/9, 4/9, 1/9)	# 將每個類別對應的預期分佈機率儲存為另一向量
+chisq.test(bobo, p = chance)	  # 第一個參數為實際資料，第二個參數p為預期機率
+#    Chi-squared test for given probabilities
+#
+# data:  bobo
+# X-squared = 0.3275, df = 3, p-value = 0.9548

@@ -51,3 +51,28 @@ png(filename = "ch8.figure3.png", height = 900, width = 1200, units = "px",
 mosaicplot(VowelCombos.mat, cex = 1, main = "VowelCombos") 
 
 dev.off()
+
+# Figure 4
+png(filename = "ch8.figure4.png", height = 900, width = 1200, units = "px",
+    res = 200)
+
+install.packages("vcd", dependencies = T, ask = F)	
+library(vcd)				
+
+mosaic(VowelCombos.mat, highlighting = "Vowel2",
+       highlighting_fill = c("black", "white", "grey"))
+
+dev.off()
+
+# Figure 5
+png(filename = "ch8.figure5.png", height = 900, width = 1200, units = "px",
+    res = 200)
+
+VowelCombos.exp = VowelCombos.mat 	
+VowelCombos.exp[,] = matrix(c(25.84, 4.18, 7.98,
+                              17.68, 2.86, 5.46,
+                              24.48, 3.96, 7.56), ncol = 3)
+
+mosaicplot(VowelCombos.exp, cex = 1, main = "VowelCombos (Expected)")
+
+dev.off()
