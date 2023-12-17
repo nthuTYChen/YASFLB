@@ -76,3 +76,47 @@ VowelCombos.exp[,] = matrix(c(25.84, 4.18, 7.98,
 mosaicplot(VowelCombos.exp, cex = 1, main = "VowelCombos (Expected)")
 
 dev.off()
+
+# Figure 6
+png(filename = "ch8.figure6.png", height = 900, width = 1200, units = "px",
+    res = 200)
+
+socdata = matrix(c(57, 112, 190, 11), ncol = 2) 
+mosaicplot(socdata)
+
+dev.off()
+
+# Figure 7
+fakeLangDist = data.frame(Freq = c(23, 68, 97, 85), 
+                          Classifier = c("Yes", "Yes", "No", "No"),
+                          Gender = c("Yes", "No", "Yes", "No"))
+
+fakeLangDist$Perc = fakeLangDist$Freq / sum(fakeLangDist$Freq) * 100
+
+library(ggplot2)
+ggplot(data = fakeLangDist, mapping = aes(x = Classifier, y = Perc,
+                                          group = Gender, fill = Gender)) +
+  geom_bar(position = position_dodge2(), stat = "identity") +
+  scale_fill_manual(values = c("black", "darkgrey")) +
+  scale_y_continuous(limits = c(0, 50)) +
+  labs(title = "Fake language distribution", x = "Classifier", y = "Proportion (%)") +
+  theme_bw()
+
+ggsave(filename = "ch8.figure7.png", height = 900, width = 1200, units = "px",
+       dpi = 200)
+
+# Figure 8
+png(filename = "ch8.figure8.png", height = 900, width = 1200, units = "px",
+    res = 200)
+
+chisq.value = seq(from = 0, to = 20, by = 0.01)
+chisq.3.den = dchisq(x = chisq.value, df = 3)
+plot(chisq.3.den, main = "Chi-squared Distribution", type = "l",
+     lty = 1, xlab = "X2", ylab = "Density")
+chisq.5.den = dchisq(x = chisq.value, df = 5)
+chisq.10.den = dchisq(x = chisq.value, df = 10)
+lines(chisq.5.den, lty = 2)
+lines(chisq.10.den, lty = 3)
+legend("topright", lty = c(1, 2, 3), legend = c("df = 3", "df = 5", "df = 10"))
+
+dev.off()
