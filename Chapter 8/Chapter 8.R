@@ -219,7 +219,7 @@ BC.chisq = (abs(B.n - C.n) - 1) ^ 2 / (B.n + C.n)
 pchisq(q = BC.chisq, df = 1, lower.tail = F)
 # 差異是顯著的！
 
-# 第六節
+# 六之一節
 # 練習七
 A.n = 4
 B.n = 0
@@ -247,4 +247,67 @@ chisq.test(semdata) # X-squared = 2.5562, df = 1, p-value = .1099
 # 改進行Fisher精確性檢驗
 fisher.test(semdata, alternative = "greater") # 單尾p值 = 0.0545接近顯著
 fisher.test(semdata) # 雙尾p值 = .08198，還是比卡方檢定的p值低
+
+# 比較母音分佈資料的卡方檢定與Fisher精確性測試的結果
+chisq.test(VowelCombos.mat)	# 單尾p值 = .3619，老樣子產生警告訊息
+fisher.test(VowelCombos.mat)	# 雙尾p值 = .4088，沒有警告訊息
+
+# 六之二節
+
+# 樣本小，預期頻率都小於5，就算有葉茲校正也沒有用
+chisq.test(c(7, 1))
+# 改以二項檢定進行精確性檢定
+# 三個參數分別為例外數、總樣本數、兩個事件預期發生機率
+pbinom(q = 1, size = 8, prob = 0.5) 
+
+# McNemar精確性檢驗的單尾p值 = .003768921
+pbinom(q = 3, size = 3 + 15, prob = 0.5)
+
+# 樣本大小只有4時，最極端的事件發生機率仍然無法低於顯著水準.05
+pbinom(q = 0, size = 4, prob = 0.5)
+
+# 六之三節
+
+# 讀取Myers et al. (2007)自創的精確性檢驗
+source("ExactFunctionsRCode.R")
+
+# 進行極簡風句法實驗的分析：組間設計(16位母語者，每4位負責判斷一個句子)
+
+Speaker = 1:16	# 母語者編號
+# 16個判斷，0=不可以，1=可以
+Judge = c(0,0,0,0, 1,1,1,1, 1,1,1,1, 0,1,1,1)	
+# 前8個判斷針對[+Num]句子，後8個針對[−Num]句子
+# 而「+」「-」分別以「1」「−1」表示
+Num = c(rep(1, 8), rep(-1, 8)) 
+# [+Num]與[−Num]判斷中的前4個判斷為[+Loc]，後四個判斷為[−Loc]
+# 如果這一行指令的結構太複雜了，不妨自行將每個rep()拆開來執行看看輸出結果？
+Loc = c(rep(c(rep(1, 4), rep(-1, 4)), 2)) 
+# 結合四個向量成為資料框格式：在未指定欄位名稱時，欄位名稱會等於向量物件名稱
+data1 = data.frame(Speaker, Judge, Num, Loc) 
+# 檢視內容
+data1
+
+# 將判斷資料以及兩個因子送出進行Myers et al. (2007)的精確性檢驗
+small.exp(data1$Judge, data1$Num, data1$Loc)
+
+# 計算兩因子的Pearson相關性係數
+# 兩個因子的層次在這4個實驗句子中是完全沒有相關性
+cor(c(1, 1, -1, -1), c(1, -1, 1, -1)) 
+
+# 進行極簡風句法實驗的分析：組間設計(6位母語者，每位負責判斷所有4個句子)
+# 每個句子有6位母語者，所以將母語者編號重覆4次
+Speaker = rep(1:6, 4) 
+# 針對四個句子中每個母語者的判斷結果
+Judge = c(0,0,0,0,0,0, 1,1,1,1,1,1, 1,1,1,1,1,1, 1,1,1,1,1,1)
+# 前面兩個句子為[+Num]，後面兩個句子為「−Num」
+Num = c(rep(1, 12), rep(-1, 12))
+# 每兩個句子中，前面的句子為[+Loc]，後面的句子為「−Loc」
+Loc = c(rep(c(rep(1, 6), rep(-1, 6)), 2))
+# 結合四個向量成為資料框格式
+data2 = data.frame(Speaker, Judge, Num, Loc) 
+# 檢視內容
+data2
+# 在small.exp()函數，利用group參數指定母語者編號將判斷結果按照編號分組
+small.exp(data2$Judge, data2$Num, data2$Loc, group = Speaker)
+
 
