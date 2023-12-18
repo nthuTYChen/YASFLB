@@ -45,3 +45,44 @@ ggplot(data = exp.avg, mapping = aes(x = Color, y = Learning, group = Color, lin
 
 # 驗證教室顏色ANOVA檢定中的右尾p值
 pf(q = 11.25, df1 = 2, df2 = 12, lower.tail = F)	# p值正是.00177
+
+# 練習二
+# 取出每個教室學生的子集合
+exp.blue = subset(exp1, Color == "blue")
+exp.red = subset(exp1, Color == "red")
+exp.yellow = subset(exp1, Color == "yellow")
+
+# 取得每個子集合樣本生字學習表現平均值
+blue.mean = mean(exp.blue$Learning)
+red.mean = mean(exp.red$Learning)
+yellow.mean = mean(exp.yellow$Learning)
+
+# 取得每個樣本的組內平方和
+blue.ss = sum((exp.blue$Learning - blue.mean) ^ 2)
+red.ss = sum((exp.red$Learning - red.mean) ^ 2)
+yellow.ss = sum((exp.yellow$Learning - yellow.mean) ^ 2)
+
+# 將平方和加總得到SSwithin
+ss.within = sum(blue.ss, red.ss, yellow.ss)
+
+# 練習三(假設你已進行過練習二所以仍然有著練習二的資料)
+# 取得所有樣本平均數
+grand.mean = mean(exp1$Learning)
+# 計算每個樣本的組間平方和。雖然我們三組樣本數都一樣，我們這邊還是選擇使用
+# nrow()取出每組樣本的列數，練習未來每組樣本可能大小不一樣的情況
+blue.ss.within = nrow(exp.blue) * (blue.mean - grand.mean) ^ 2
+red.ss.within = nrow(exp.red) * (red.mean - grand.mean) ^ 2
+yellow.ss.within = nrow(exp.yellow) * (yellow.mean - grand.mean) ^ 2
+# 將所有組間平方和加總，得到SSbetween
+ss.between = sum(blue.ss.within, red.ss.within, yellow.ss.within)
+
+# 三之三之二
+# 進行教室顏色例子的事後比較
+exp.blue = subset(exp1, Color == "blue")
+exp.red = subset(exp1, Color == "red")
+exp.yellow = subset(exp1, Color == "yellow")
+
+# 成對t檢定(假設變異數相同)
+t.test(exp.blue$Learning, exp.red$Learning, var.equal = T)    # 藍vs.紅 p = .0047
+t.test(exp.blue$Learning, exp.yellow$Learning, var.equal = T) # 藍vs.黃 p = .0028
+t.test(exp.red$Learning, exp.yellow$Learning, var.equal = T)  # 紅vs.黃 p = 1
