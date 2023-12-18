@@ -42,3 +42,6 @@ ggplot(data = exp.avg, mapping = aes(x = Color, y = Learning, group = Color, lin
   labs(title = "Vocabulary Learning by Classroom Color", x = "Classroom Color", 
        y = "Learning Performance", caption = "Error bars = SE") +
   theme_bw()
+
+# 驗證教室顏色ANOVA檢定中的右尾p值
+pf(q = 11.25, df1 = 2, df2 = 12, lower.tail = F)	# p值正是.00177
