@@ -26,3 +26,40 @@ ggplot(data = exp.avg, mapping = aes(x = Color, y = Learning, group = Color, lin
 
 ggsave(filename = "ch9.figure1.png", height = 900, width = 1200, units = "px",
        dpi = 200)
+
+# Figure 2
+library(ggplot2)
+
+semphon.1 = data.frame(SemRel = c(rep("Irrelevant", 2), 
+                                  rep("Relevant",2  )), 
+                       PhonRel = rep(c("Irrelevant", "Relevant"),2), 
+                       RT = c(445, 410, 385, 350),
+                       InteractType = rep("Additive (No Interaction)", 4))
+
+semphon.2 = data.frame(SemRel = c(rep("Irrelevant", 2), 
+                                  rep("Relevant",2  )), 
+                       PhonRel = rep(c("Irrelevant", "Relevant"),2), 
+                       RT = c(445, 385, 365, 350),
+                       InteractType = rep("Reduced/Enhanced", 4))
+
+semphon.3 = data.frame(SemRel = c(rep("Irrelevant", 2), 
+                                  rep("Relevant",2  )), 
+                       PhonRel = rep(c("Irrelevant", "Relevant"),2), 
+                       RT = c(445, 350, 360, 410),
+                       InteractType = rep("Opposite", 4))
+
+semphon = rbind(semphon.1, semphon.2, semphon.3)
+
+ggplot(data = semphon, aes(x = SemRel, y = RT, 
+                             group = PhonRel, linetype = PhonRel)) +
+  geom_line()+
+  geom_point()+
+  scale_y_continuous(limits = c(325, 475)) +
+  facet_grid(~ InteractType) +
+  labs(title = "Interaction Types", x = "Semantic Level", 
+       y = "Reaction Time (ms)", 
+       linetype = "Phonological Level") + 
+  theme_bw()
+
+ggsave(filename = "ch9.figure2.png", height = 900, width = 1800, units = "px",
+       dpi = 200)

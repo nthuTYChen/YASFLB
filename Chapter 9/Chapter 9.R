@@ -86,3 +86,77 @@ exp.yellow = subset(exp1, Color == "yellow")
 t.test(exp.blue$Learning, exp.red$Learning, var.equal = T)    # 藍vs.紅 p = .0047
 t.test(exp.blue$Learning, exp.yellow$Learning, var.equal = T) # 藍vs.黃 p = .0028
 t.test(exp.red$Learning, exp.yellow$Learning, var.equal = T)  # 紅vs.黃 p = 1
+
+# 三之三之三
+# 計算Tukey HSD事後檢定的HsD值
+# 先使用qtukey()函數計算q.crit值
+q.crit = qtukey(1 - 0.05, 3, 12)
+# 套用<公式十四>計算出HSD值
+q.crit * sqrt(1.333 / 5) 
+
+# 如同之前的方式產生並儲存ANOVA的檢定結果
+colors.aov = aov(Learning ~ Color, data = exp1)	
+# 根據ANOVA的模型進行事後比較檢定
+TukeyHSD(colors.aov)
+
+# 利用校正後的p值回推至兩樣本實際的平均數差異
+qtukey(1 - 0.003832, 3, 12) * sqrt(1.333 / 5) 
+
+# 四之一
+# 練習四
+# 別忘了載入套件
+library(ggplot2)
+# 根據數據建立資料框
+semphon.1 = data.frame(SemRel = c(rep("Irrelevant", 2), 
+                                  rep("Relevant",2  )), 
+                       PhonRel = rep(c("Irrelevant", "Relevant"),2), 
+                       RT = c(445, 410, 385, 350))
+
+# 老樣子，將不同欄位對應到不同的繪圖元素。這裡的重點是將PhonRel欄位對應至分組
+# 以及線條樣式
+ggplot(data = semphon.1, aes(x = SemRel, y = RT, 
+                           group = PhonRel, linetype = PhonRel)) +
+  # 加上線條
+  geom_line()+
+  # 加上代表數值的點
+  geom_point()+
+  # 設定合理的Y軸範圍
+  scale_y_continuous(limits = c(325, 475)) +
+  # 設定合理的主標題、軸標題、以及線條樣式的圖例標題
+  labs(title = "Additive (No Interaction)", x = "Semantic Level", 
+       y = "Reaction Time (ms)", 
+       linetype = "Phonological Level") + 
+  theme_bw()
+
+# 建立另外兩個資料框並使用相同邏輯產生圖表，注意圖表標題的差異
+semphon.2 = data.frame(SemRel = c(rep("Irrelevant", 2), 
+                                  rep("Relevant",2  )), 
+                       PhonRel = rep(c("Irrelevant", "Relevant"),2), 
+                       RT = c(445, 350, 360, 410))
+
+
+
+ggplot(data = semphon.2, aes(x = SemRel, y = RT, 
+                           group = PhonRel, linetype = PhonRel)) +
+  geom_line()+
+  geom_point()+
+  scale_y_continuous(limits = c(325, 475)) +
+  labs(title = "Opposite", x = "Semantic Level", 
+       y = "Reaction Time (ms)", 
+       linetype = "Phonological Level") + 
+  theme_bw()
+
+semphon.3 = data.frame(SemRel = c(rep("Irrelevant", 2), 
+                                  rep("Relevant",2  )), 
+                       PhonRel = rep(c("Irrelevant", "Relevant"),2), 
+                       RT = c(445, 385, 365, 350))
+
+ggplot(data = semphon.3, aes(x = SemRel, y = RT, 
+                             group = PhonRel, linetype = PhonRel)) +
+  geom_line()+
+  geom_point()+
+  scale_y_continuous(limits = c(325, 475)) +
+  labs(title = "Reduced/Enhanced", x = "Semantic Level", 
+       y = "Reaction Time (ms)", 
+       linetype = "Phonological Level") + 
+  theme_bw()
