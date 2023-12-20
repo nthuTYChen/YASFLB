@@ -217,3 +217,14 @@ exp1.het = read.delim("ColoredRooms_LargeVar.txt", header = T)
 # 進行Levene Test
 leveneTest(Learning ~ Color, exp1.het)
 
+# 將一般的單因子ANOVA與Welch ANOVA進行比較
+colors.aov = aov(Learning ~ Color, data = exp1)	# 重新進行ANOVA檢定
+summary(colors.aov)				                  		# p = .00177
+oneway.test(Learning ~ Color, data = exp1)		# p = .007043
+
+# 進行非母數版本的ANOVA：Kruskal-Wallis Test
+kruskal.test(Learning ~ Color, data = exp1)		# p=.01133
+
+# 使用進行White校正的迴歸分析再次計算單因子ANOVA主要效應的p值。
+library(car)		
+Anova(colors.aov, white.adjust = TRUE)		# p =.004874
