@@ -63,3 +63,16 @@ ggplot(data = semphon, aes(x = SemRel, y = RT,
 
 ggsave(filename = "ch9.figure2.png", height = 900, width = 1800, units = "px",
        dpi = 200)
+
+# Figure 3
+exp2 = read.delim("ColoredRooms2.txt", header = T)
+colorgender.aov = aov(Learning ~ Gender * Color, data = exp2) 
+
+png(filename = "ch9.figure3.png", height = 900, width = 1200, units = "px",
+    res = 200)
+
+library(effects)			
+colorgender.ef = allEffects(colorgender.aov)	
+plot(colorgender.ef) 
+
+dev.off()

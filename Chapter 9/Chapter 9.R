@@ -160,3 +160,60 @@ ggplot(data = semphon.3, aes(x = SemRel, y = RT,
        y = "Reaction Time (ms)", 
        linetype = "Phonological Level") + 
   theme_bw()
+
+# 四之二節
+exp2 = read.delim("ColoredRooms2.txt", header = T)
+
+# 練習五
+exp2 = data.frame(Gender = c(rep("Female", 15), rep("Male", 15)),  # 性別因子層次各重覆15次 
+                  Color = rep(c(rep("Red", 5), rep("Blue", 5), rep("Yellow", 5)), 2), # 顏色因子 
+                  Learning = c(c(3, 1, 1, 6, 4), c(2, 5, 9, 7, 7), c(9, 9, 13, 6, 8), # 女性的學習
+                               c(0, 2, 0, 0, 3), c(3, 8, 3, 3, 3), c(0, 0, 0, 5, 0))) # 男性的學習
+
+# 進行雙因子獨立測量ANOVA，並將檢定結果存入物件
+colorgender.aov = aov(Learning ~ Gender * Color, data = exp2) 
+summary(colorgender.aov) 
+
+# 練習六
+# 以*表達使用雙因子組合進行資料分類計算
+exp2.avg = aggregate(Learning ~ Gender * Color, FUN = mean, data = exp2)
+exp2.sd = aggregate(Learning ~ Gender * Color, FUN = sd, data = exp2)
+
+# 複製一份exp2.avg
+exp2.des = exp2.avg
+# 新增SD欄位，並將exp2.sd中的標準資訊存入，合併成為單一資料框
+exp2.des$SD = exp2.sd$Learning
+
+# A*B = A + B + A:B，所以以下的雙因子ANOVA檢定結果與exp2.aov一樣。
+summary(aov(Learning ~ Gender + Color + Gender:Color, data = exp2)) 
+
+library(effects)				# 記得先安裝才有辦法載入套件
+# 使用effects套件的allEffects()函數取得ANOVA模型中的「所有效應」
+colorgender.ef = allEffects(colorgender.aov)	
+# 直接使用內建函數plot()將所有ANOVA模型的效應繪製為折線圖
+plot(colorgender.ef) 
+
+# 進行Tukey HSD事後檢定
+TukeyHSD(colorgender.aov) 
+
+# 四之五
+# 進行Levene檢定測試多層次因子間變異數是否有顯著差異
+library(car)					                      # 記得先安裝載入套件
+leveneTest(Learning ~ Color, data = exp1) 	
+
+# 以BoysGirls.txt資料比較Levene Test與F檢定測試雙樣本變數是否結果
+bg = read.table("BoysGirls.txt", header = T) 		# 重新讀取資料
+boys1 = subset(bg, Study == 1 && Gender == "Boy") 
+girls1 = subset(bg, Study == 1 && Gender == "Girl")
+
+# 比較兩種變異數檢定 
+var.test(boys1, girls1)				            # p =.339
+leveneTest(Measure ~ Gender, data = bg)		# p =.7533
+
+# 以變異非常大的資料試著進行Levene Test
+# 讀取資料
+exp1.het = read.delim("ColoredRooms_LargeVar.txt", header = T)
+
+# 進行Levene Test
+leveneTest(Learning ~ Color, exp1.het)
+
