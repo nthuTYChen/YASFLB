@@ -364,8 +364,8 @@ colorgender2.aov = aov(Learning ~ Color * Gender, data = exp2a)
 summary(colorgender2.aov)
 
 # 附錄
-# 以矩陣方式讀取maxong.txt，將欄位數量設為3，並且將byrow參數設為TRUE以列為基準
-# 排列，dimnames則是設定矩陣欄位名稱
+# 以矩陣方式讀取maxong.txt，將欄位數量設為3，並且將byrow參數設為TRUE以原始資料中
+# 的列為基準單位進行排列，dimnames則是設定矩陣欄位名稱
 maxong.mat = matrix(scan("maxong.txt"), ncol = 3, byrow = T,
                     dimnames = list(Subject = 1:5, 
                     Condition = c("Cond1", "Cond2", "Cond3")))
