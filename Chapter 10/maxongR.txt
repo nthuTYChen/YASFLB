@@ -1,0 +1,16 @@
+Subject	Condition	Response
+1	Cond1	100
+2	Cond1	90
+3	Cond1	110
+4	Cond1	100
+5	Cond1	100
+1	Cond2	90
+2	Cond2	100
+3	Cond2	110
+4	Cond2	90
+5	Cond2	100
+1	Cond3	130
+2	Cond3	100
+3	Cond3	109
+4	Cond3	109
+5	Cond3	130
