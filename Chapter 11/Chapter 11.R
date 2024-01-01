@@ -57,8 +57,8 @@ anova(fd.lm.reorder)		# 現在熟悉度有顯著差異但詞頻沒有！
 
 # 二之二
 # 繪製表示多元迴歸模型的3D圖
-library(rlg)	# 記得先安裝rlg套件
-fd = read.delim("freqdur.txt", header = T)
+library(rgl)	# 記得先安裝rlg套件
+fd = read.delim("freqdur.txt")
 fd$LogFreq = log(fd$Freq)
 attach(fd)		# 設定為常駐物件
 # 繪製一個3D散佈圖，並指定每個變量分別對應到不同的軸上：
@@ -83,3 +83,55 @@ planes3d(a, b, c, d, alpha = 0.3)
 
 # 示範結束後解除fd的常駐狀態
 detach(fd)
+
+# 二之三節
+
+# 檢視多元迴歸模型的殘餘值分佈，看看模型有多麼配適因變量的資料
+# 如果你的三個自變量多元迴歸模型不見了，就重新建立一個吧！
+fd.lm = lm(Dur ~ LogFreq + AoA + Fam, data = fd) 	
+summary(fd.lm)
+
+# 練習四
+# 一
+dur.pred = predict(fd.lm)
+# 二
+dur.pred.diff = dur.pred - fd$Dur
+# 三
+dur.resid = resid(fd.lm)
+# 四：手動計算殘餘值向量減去直接從模型抽取出的殘餘值向量相減後加總
+sum(dur.pred.diff - dur.resid)
+# [1] -4.944586e-10 # 基本上等於0
+
+# 殘餘值的平均數就應該是「0」
+fd.resid = resid(fd.lm)	# 先以resid()函數從模型中直接取得殘餘值
+mean(fd.resid)		      # 果然是0
+
+# 將殘餘值的分佈視覺化，呈現它的常態分佈
+hist(fd.resid)		  # 以直方圖呈現分佈型態，看起來的確是對稱的常態分佈
+qqnorm(fd.resid)		# 再改用QQ-Plot呈現，而大多殘餘值都落在理想分佈線上
+qqline(fd.resid)
+
+# 示範迴歸模型中少了關鍵的自變量時的殘餘值分佈
+fd$FactorX = 1:nrow(fd) 		# 用fd的行數建立一個神秘變量
+# 因為fd行數的最大/最小值差異很大，這個神秘變量的變異數也特別大
+var(fd$FactorX)			
+# [1] 237867.5
+# 我們將這個神秘變量加上原始音長，然後存成新的DurX變量
+fd$DurX = fd$Dur + fd$FactorX
+
+# 把「DurX」當作因變量，再建立一次跟之前一樣包含對數詞頻、熟悉度、
+# 以及習得年齡三個自變量的多元迴歸模型
+fd.noX.lm = lm(DurX ~ LogFreq + AoA + Fam, data = fd)
+coef(fd.noX.lm)
+
+fd.noX.resid = resid(fd.noX.lm)	# 取出殘餘值
+hist(fd.noX.resid)			# 直方圖看起來不太像鐘型的常態分佈
+qqnorm(fd.noX.resid)	
+qqline(fd.noX.resid)			# 殘餘值分佈兩端大幅偏離理想分佈線
+
+# 將FactorX也加入模型做為自變量
+fd.withX.lm = lm(DurX ~ LogFreq + AoA + Fam + FactorX, data = fd)
+fd.withX.resid = resid(fd.withX.lm)
+hist(fd.withX.resid)		
+qqnorm(fd.withX.resid)	
+qqline(fd.withX.resid)
