@@ -42,3 +42,22 @@ qqnorm(fd.withX.resid)
 qqline(fd.withX.resid)
 
 dev.off()
+
+# Figure 9
+fd = read.delim("freqdur.txt")
+fd.int = lm(Dur ~ 1, data = fd)	
+
+fd.sub = fd[1:50,]
+x = 1:nrow(fd.sub)
+y = fd.sub$Dur
+fd.int.pred = predict(fd.int)
+
+png(filename = "ch11.figure9.png", height = 900, width = 1200, unit = "px",
+    res = 200)
+
+plot(x, y, xlab = "", ylab = "Duration", 
+     main = "An Intercept-only Model of freqdur.txt")
+abline(fd.int, lwd = 2)
+segments(x, y, x, fd.int.pred[1:50])
+
+dev.off()

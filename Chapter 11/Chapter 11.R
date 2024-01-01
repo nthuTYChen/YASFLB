@@ -135,3 +135,53 @@ fd.withX.resid = resid(fd.withX.lm)
 hist(fd.withX.resid)		
 qqnorm(fd.withX.resid)	
 qqline(fd.withX.resid)
+
+# 二之四節
+# 在只有截距的迴歸模型中，截距就是因變量的平均數
+fd.int = lm(Dur ~ 1, data = fd)	# 建立只包含截距的迴歸模型
+summary(fd.int)				          # 截距為249.2647
+mean(fd$Dur)                    # 因變量平均數也是249.2647
+
+# 練習五
+# 取出fd資料框的前50列，另存為物件
+fd.sub = fd[1:50,]
+# 建立包含1至子集合列數(50)的數值向量，做為X軸變量
+x = 1:nrow(fd.sub)
+# 取出子集合的50個時長數值，做為Y軸變量
+y = fd.sub$Dur
+# 從只包含截距的模型中取得Y變量的預測值，另存為物件
+fd.int.pred = predict(fd.int)
+# 先以50個X軸與Y軸數值產生散佈圖
+plot(x, y, xlab = "", ylab = "Duration", 
+     main = "An Intercept-only Model of freqdur.txt")
+# 加上只含有截距迴歸模型的最佳配適線(因為最佳配適線是平均數，所以為完美的水平線)
+abline(fd.int, lwd = 2)
+# 利用segment()函數繪出X軸上每個實際Y值到預測值(截距)的直線
+segments(x, y, x, fd.int.pred[1:50])
+
+# 建立Myers et al. (2011)研究的多元迴歸模型
+native = read.delim("nativism.txt")
+native.lm = lm(Accuracy ~ AgeAcquire + YearsUsing, data = native)
+summary(native.lm)		# 讓我們聚集在檢定報告裡的各個係數
+
+# 建立不含截距的模型進行比較
+native.lm.noint = lm(Accuracy ~ AgeAcquire + YearsUsing - 1, data = native)
+native.lm.noint0 = lm(Accuracy ~ 0 + AgeAcquire + YearsUsing, data = native)
+summary(native.lm.noint)
+summary(native.lm.noint0)		# 兩個模型的統計數據應該一樣
+
+# 練習六
+# 建立有截距且習得年齡為唯一自變量的簡單線性迴歸模型
+native.lm.sub = lm(Accuracy ~ AgeAcquire, data = native)
+# 建立無截距且習得年齡為唯一自變量的簡單線性迴歸模型
+native.lm.noint.sub = lm(Accuracy ~ AgeAcquire - 1, data = native)
+# 繪製實際數據點的散佈圖，以Accuracy為Y軸，AgeAcquire為X軸
+# Y軸的區間定義為「0至1」，因為無截距的模型最佳配適線的起點是在Y軸的「0」
+plot(Accuracy ~ AgeAcquire, data = native, ylim = c(0, 1), 
+     main = "Accuracy ~ AgeAcquire")
+# 加上有截距模型的最佳配適線
+abline(native.lm.sub, lwd = 2, lty = 1)
+# 加上無截距模型的最佳配適線
+abline(native.lm.noint.sub, lwd = 2, lty = 2)
+# 很明顯是有截距的模型比較貼近實際的數據吧？這也說明了在我們的例子中，雖然
+# 假設截距為「0」比較合理，但卻不一定能夠得到足以解釋資料的模型哦！
