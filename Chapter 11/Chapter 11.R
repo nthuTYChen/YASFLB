@@ -185,3 +185,42 @@ abline(native.lm.sub, lwd = 2, lty = 1)
 abline(native.lm.noint.sub, lwd = 2, lty = 2)
 # 很明顯是有截距的模型比較貼近實際的數據吧？這也說明了在我們的例子中，雖然
 # 假設截距為「0」比較合理，但卻不一定能夠得到足以解釋資料的模型哦！
+
+# 二之五節
+# 將自變量原始係數轉換為標準化係數
+coefs = coef(native.lm)			# 以coef()函數取出模型中的所有係數
+AgeAcquire_b = coefs["AgeAcquire"]  	# 根據自變量名稱取出斜率
+YearsUsing_b = coefs["YearsUsing"]
+acc.sd = sd(native$Accuracy)		# 取得因變量與自變量的標準差
+age.sd = sd(native$AgeAcquire)
+years.sd = sd(native$YearsUsing)
+AgeAcquire_b * (age.sd / acc.sd)	# 計算習得年齡的標準化係數
+YearsUsing_b * (years.sd / acc.sd)	# 計算語言使用時間的標準化係數
+
+# 練習七
+# 先取得原始截距
+acc.int = coefs["(Intercept)"]
+# 步驟一
+# 根據上面的結果，每當習得年齡增加1個標準差，正確率就降低-0.6492881個標準差
+# 根據這些資訊，我們可以計算出正確率截距減少-0.6482881個標準差後的數值
+acc.int + acc.sd * -0.6492881
+# (Intercept) 
+# 0.5641341
+# 步驟二
+# 利用線性迴歸方程式計算推估的截距數值。因為「不考慮」語言使用時間的
+# 影響，就代表假設語言使用時間的係數為「0」，也就是在迴歸方程式中可以忽略的
+# 意思。將原始習得時間的係數(斜率)乘上代表習得時間的數值，也就是一個標準差代表的
+# 「13.01762...」，就可以計算出因為習得時間改變一個標準差時因變量改變的數值。
+# 將這個改變的數值加到原始截距上，就可以得出習得時間改變一個標準差時推估的
+# 因變量數值，結果與步驟一相同。驗證成功！
+acc.int + AgeAcquire_b * age.sd
+# (Intercept) 
+# 0.5641341 
+
+# 將所有變量轉換為z分數
+native$Accuracy.z = scale(native$Accuracy)
+native$AgeAcquire.z = scale(native$AgeAcquire)
+native$YearsUsing.z = scale(native$YearsUsing)
+# 建立相同的多元線性迴歸模型
+native.lm.z = lm(Accuracy.z ~ AgeAcquire.z + YearsUsing.z, data = native)  
+summary(native.lm.z)
