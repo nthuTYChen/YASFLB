@@ -224,3 +224,86 @@ native$YearsUsing.z = scale(native$YearsUsing)
 # 建立相同的多元線性迴歸模型
 native.lm.z = lm(Accuracy.z ~ AgeAcquire.z + YearsUsing.z, data = native)  
 summary(native.lm.z)
+
+# 三之二節
+# 示範進行含有類別因子自變量的迴歸分析
+exp1 = read.delim("ColoredRooms.txt")		# 讀取資料
+head(exp1)						                  # 看看前六列內容
+
+exp1$Color = as.factor(exp1$Color)	# 必須先把原本代表字串的欄位轉換為因子
+contrasts(exp1$Color)    		        # 看看因子層次經過虛擬編碼後的對比
+
+# 將Color因子中的參考基準以relevel()函數中的「ref」參數設定為「Yellow」，並且
+# 另外存為「Color.y」因子
+exp1$Color.y = relevel(exp1$Color, ref = "yellow")
+contrasts(exp1$Color.y)  
+
+# 比較變異數分析以及使用虛擬編碼的迴歸分析建立的模型
+# 進行變異數分析。注意，從頭開始建立的變異數分析是使用aov()函數
+color.aov = aov(Learning ~ Color, data = exp1)
+summary(color.aov)
+# 進行迴歸分析，以預設參考基準「Blue」的因子做為自變量
+color.dum.lm = lm(Learning ~ Color, data = exp1)
+summary(color.dum.lm)
+
+# 檢視迴歸模型中的自變量是否有整體的顯著效應
+anova(color.dum.lm)
+
+# 以「yellow」層次做為參考基準的類別因子再進行一次迴歸分析
+# 注意自變量名稱
+color.y.lm = lm(Learning ~ Color.y, data = exp1)		
+summary(color.y.lm)
+
+# 轉換為總和編碼
+exp1$Color.sum = exp1$Color   			# 先複製類別因子
+Color.sum.levels = levels(exp1$Color.sum)	# 取出因子中所有層次
+# 利用所有層次與contr.sum()產生總和編碼，並代替因子中原始的層次「對比」
+contrasts(exp1$Color.sum) = contr.sum(Color.sum.levels)
+# 看看新的層次對比
+contrasts(exp1$Color.sum)
+#       [,1] [,2]
+#Blue      1    0
+#Red       0    1
+#Yellow   -1   -1
+# 檢視因子欄位，仍然是原始的層次名稱，並不是底層的數值。
+head(exp1)
+
+# 以總和編碼因子建立迴歸模型
+color.sum.lm = lm(Learning ~ Color.sum, data = exp1)
+summary(color.sum.lm)   
+
+# 對此迴歸模型進行變異數分析
+anova(color.sum.lm)
+
+# 三之三之一節
+# 教室顏色對生字學習影響的第二個實驗，也就是加上受試者性別做為第二個自變量
+exp2 = read.delim("ColoredRooms2.txt")
+# 條件裡的「!=」就是「不相等」的意思囉！
+exp2.nored = subset(exp2, Color != "Red")	
+# 自己看看子集合的資料長怎樣吧！
+head(exp2.nored)		
+
+# 先將字元欄位轉換為因子
+exp2.nored$Color = as.factor(exp2.nored$Color)    
+exp2.nored$Gender = as.factor(exp2.nored$Gender)
+# 「Gender * Color」= Gender + Color + Gender:Color，還記得嗎？
+exp2.nored.aov = aov(Learning ~ Gender * Color, data = exp2.nored)
+summary(exp2.nored.aov) 
+
+# 練習八
+# 進行自變量順序調換的變異數分析
+exp2.rv.aov = aov(Learning ~ Color * Gender, data = exp2.nored)
+# 檢定結果完全相同
+summary(exp2.rv.aov)
+# 根據之前的解釋，只有當資料平均分佈於自變量的各個層次(組合)時，自變量的順序
+# 才不影響變異數分析的數據。以xtabs()驗證每個自變量層次組合的數量是否相同。
+# 沒錯，每個層次組合都有5筆數值
+xtabs(~ Color + Gender, data = exp2.nored)
+
+# 練習九
+# 直接以最方便的Tukey's HSD事後檢定吧！
+TukeyHSD(exp2.nored.aov)
+# 在每組事後比較中，我們關切的是不同性別在同一個教室顏色中的表現，也就是
+# 「Male:Blue-Female:Blue」與「Male:Yellow-Female:Yellow」。在前者的比較中
+# 性別差異在藍色教室中不顯著，而在後者的比較中性別差異在黃色教室中顯著。
+# 這便是交互作用的來源啦！
