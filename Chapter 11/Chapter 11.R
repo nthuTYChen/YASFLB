@@ -307,3 +307,188 @@ TukeyHSD(exp2.nored.aov)
 # 「Male:Blue-Female:Blue」與「Male:Yellow-Female:Yellow」。在前者的比較中
 # 性別差異在藍色教室中不顯著，而在後者的比較中性別差異在黃色教室中顯著。
 # 這便是交互作用的來源啦！
+
+# 先複製兩個因子
+
+# 將類別因子以ifelse()手動轉換為總合編碼
+# ifelse()可以檢查欄位的每個值是否符合某個層次的名稱，
+# 並根據「是」或「否」的結果回傳「1」或「−1」
+exp2.nored$Color.sum = ifelse(exp2.nored$Color == "Blue", 1, -1)
+exp2.nored$Gender.sum = ifelse(exp2.nored$Gender == "Male", 1, -1)
+
+# 將使用總合編碼的教室顏色與性別欄位相乘，得到代表兩個自變量交互作用的總合編碼
+exp2.nored$ColorGender.sum = exp2.nored$Color.sum * exp2.nored$Gender.sum
+head(exp2.nored)		# 查看一下編碼後的資料內容
+
+# 以第4、5、6欄為Color.sum, Gender.sum和ColorGender.sum計算相關係數矩陣
+cor(exp2.nored[, 4:6])	
+
+# 練習十
+# 去掉(負數)exp2.nored中的頭兩列
+exp2.nored.sub = exp2.nored[c(-1, -2),]
+# 再次產生相關係數矩陣，會發現三個變量開始出現微弱的相關性了。如果資料分佈
+# 更不均勻，那麼變量之間的混雜程度就會更嚴重。
+cor(exp2.nored.sub[, 4:6])	
+
+# 用三個經過總合編碼轉換的變量進行多元迴歸分析
+color.sum.lm = lm(Learning ~ Gender.sum + Color.sum +　ColorGender.sum, 
+                 data = exp2.nored)
+summary(color.sum.lm)
+
+# 練習十一
+# 先複製兩個自變量，並在複製的過程中確保有轉換為因子
+exp2.nored$Color.sumr = as.factor(exp2.nored$Color)
+exp2.nored$Gender.sumr = as.factor(exp2.nored$Gender)
+# 對複製的自變量進行總合編碼轉換
+# 因為我們知道兩個類別因子中都只有兩個層次，所以也可以直接在contr.sum()中放入層次
+# 數量進行轉換
+contrasts(exp2.nored$Color.sumr) = contr.sum(2)
+contrasts(exp2.nored$Gender.sumr) = contr.sum(2)
+# 可以自己用contrasts()看看轉換後的編碼
+contrasts(exp2.nored$Color.sumr)
+contrasts(exp2.nored$Gender.sumr)
+# 建立含有交互作用的迴歸模型
+color.sumr.lm = lm(Learning ~ Color.sumr * Gender.sumr, data = exp2.nored)
+# 數據完全一樣
+summary(color.sumr.lm)
+
+# 三之三之一節
+# 解釋迴歸中連續變量的交互作用
+# 先建立三個變量包含的虛假語料
+x1 = c(1, 2, 3, 4, 5, 6, 7, 8, 9)
+x2 = c(0, 0, 0, 4, 4, 4, 7, 7, 7)
+y = c(3, 2, 1, 6, 5, 4, 9, 8, 7) 
+
+# 以散佈圖和簡單線性迴歸檢查x1與y的相關性(正相關)
+fake.simp.lm = lm(y ~ x1)	             # 簡單線性迴歸
+summary(fake.simp.lm) 　　
+plot(x1, y)		  		                   # 產生散佈圖
+lines(predict(fake.simp.lm), lwd = 2)  # 加上呈現模型預測值的折線
+# 加入x2自變量成為多元線性迴歸，x1效應變成負的
+summary(lm(y ~ x1 + x2)) 　　　
+# 含有連續變量交互作用的多元迴歸：交互作用是顯著的
+fake.int.lm = lm(y ~ x1 * x2)
+summary(fake.int.lm) 　　　	
+# 以predict()取出預測值後在剛剛產生的散佈圖上以虛線呈現多元迴歸的預測值折線
+lines(predict(fake.int.lm)) 　　
+
+plot(y ~ x2)  # 檢視x2與y的關係
+
+# 測試x1與x2的相關性
+cor.test(x1, x2) 　　　	# 結果應該是r(7) = .95, p< .0001
+
+# 練習十二
+# 使用3D散佈圖與最佳配適平面檢查三個變量之間的相關性
+library(rgl)				# 載入rgl套件
+plot3d(x = x1, y = x2, z = y)		# 以原始變量做為產生3D散佈圖
+coefs = coef(fake.int.lm)	     	# 從完整迴歸模式中取得係數
+a = coefs["x1"]			          	# 利用係數產生最佳配適平面
+b = coefs["x2"]
+c = -1                          # 老樣子，z軸通常為-1
+d = coefs["(Intercept)"]
+planes3d(a, b, c, d, alpha = 0.5)
+
+# Myers (2015)的研究例子
+syl = read.delim("NBUP.txt")  	# 讀取檔案
+cor.test(syl$NB, syl$UP)	    	# 結果應該是不顯著的r(3185) = -.03, p = .09
+cor.test(syl$NB, syl$MeanResp)	# r(3185) = 35.507, p < .001
+cor.test(syl$UP, syl$MeanResp)	# r(3185) = 4.772, p < .001
+
+syl.noint = lm(MeanResp ~ NB + UP, data = syl)  	# 建立沒有交互作用的模型
+summary(syl.noint)					# 兩個變量都顯著
+
+# 練習十三
+# 一
+1.392 * (10 ^ -1) + 1.178 * (10 ^ -2) * 6.3 + 1.137 * (10 ^ -4) * 15 # 0.215
+# 二
+1.392 * (10 ^ -1) + 1.178 * (10 ^ -2) * 15 + 1.137 * (10 ^ -4) * 1 # 0.316
+
+syl.int = lm(MeanResp ~ NB * UP, data = syl) # 納入交互作用的模型
+summary(syl.int)					
+
+# 繪製<圖十三>的未含以及包含交互作用的圖表
+library(effects)  # 別忘了安裝以及載入套件
+library(ggplot2)
+
+# 圖十三左
+# 因為未含交互作用的迴歸模型使用effects套件取得估計值相加作用的趨勢線反而比較麻煩
+# 所以我們自己建立可以用來繪製圖表的估計值資料框
+# 從迴歸模型中取得係數
+syl.coefs = coef(syl.noint)
+# 分別取得截距以及自變量的係數
+intercept = syl.coefs["(Intercept)"]
+nb.b = syl.coefs["NB"]
+up.b = syl.coefs["UP"]
+
+# 先建立估計值資料框的NB與UP欄位。由於用來產生圖十三右的effects套件會在NB
+# 使用[0, 10, 20, 30, 40]的級距，並在UP使用[1, 100, 200, 300, 400]的級距。
+# 在這兩個欄位產生所有NB與UP級距的組合
+syl.noint.ef = data.frame(NB = rep(c(0, 10, 20, 30, 40), 5),
+                          UP = c(rep(1, 5), rep(100, 5), rep(200, 5), rep(300, 5), rep(400, 5)))
+
+# 使用未含交互作用的迴歸方程式以及各個係數，還有NB以及UP欄位值產生對應的估計值
+syl.noint.ef$fit = intercept + nb.b * syl.noint.ef$NB + up.b * syl.noint.ef$UP
+
+# 可以看到資料框物件中，NB與UP欄位包含所有[0, 10, 20, 30, 40]與[1, 100, 200, 300, 400]
+# 的組合，而fit欄位就是根據這些組合結合迴歸模型數據產生的預測值
+head(syl.noint.ef)
+
+# 接著使用ggplot2產生圖十三左
+# ggplot()只負責當作基礎函數，因為我們會利用其他geom函數定義圖表
+ggplot() +
+  # 在圖表中加上來自syl物件的實際資料點，將NB對應至X軸而MeanResp對應至Y軸
+  # 設定資料點的大小、顏色、以及透明度
+  geom_point(data = syl, mapping = aes(x = NB, y = MeanResp), 
+             size = 2, color = "lightgrey", alpha = .9) +
+  # 在圖表中加上呈現來自syl.int.ef物件預測值的折線，將NB對應至X軸而fit對應至Y軸
+  # 並以UP指定進行分組。因為UP原本是數值，但在繪圖中要當成分組的因子，所以我們
+  # 會使用factor()函數讓ggplot2知道要把UP當成因子。
+  geom_line(data = syl.noint.ef, 
+            mapping = aes(x = NB, y = fit, group = factor(UP)),
+            stat = "identity", linewidth = 1) +
+  # 在圖表中加上呈現來自syl.int.ef物件預測值的數據點，將NB對應至X軸而fit對應至Y軸
+  # 並以UP指定進行分組和使用不同樣式的數據點。使用factor()函數的原因同上
+  geom_point(data = syl.noint.ef, 
+             mapping = aes(x = NB, y = fit, group = factor(UP), shape = factor(UP)),
+             stat = "identity", size = 3) +
+  labs(x = "NB", y = "Predicted Acceptability", title = "MeanResp ~ NB + UP",
+       shape = "UP") +
+  theme_bw()
+
+# 圖十三右
+# 利用effects套件中的effect()函數，以迴歸模型中的交互作用產生估計值。
+# 再利用as.data.frame()函數將effect()產生的資料重新組織為資料框物件
+syl.int.ef = as.data.frame(effect("NB:UP", syl.int))
+# 可以看到資料框物件中，NB與UP欄位包含所有[0, 10, 20, 30, 40]與[1, 100, 200, 300, 400]
+# 的組合，而fit欄位就是根據這些組合結合迴歸模型數據產生的預測值
+head(syl.int.ef)
+
+# 接著使用ggplot2產生圖十三右
+# ggplot()只負責當作基礎函數，因為我們會利用其他geom函數定義圖表
+ggplot() +
+  # 在圖表中加上來自syl物件的實際資料點，將NB對應至X軸而MeanResp對應至Y軸
+  # 設定資料點的大小、顏色、以及透明度
+  geom_point(data = syl, mapping = aes(x = NB, y = MeanResp), 
+             size = 2, color = "lightgrey", alpha = .9) +
+  # 在圖表中加上呈現來自syl.int.ef物件預測值的折線，將NB對應至X軸而fit對應至Y軸
+  # 並以UP指定進行分組。因為UP原本是數值，但在繪圖中要當成分組的因子，所以我們
+  # 會使用factor()函數讓ggplot2知道要把UP當成因子。
+  geom_line(data = syl.int.ef, 
+            mapping = aes(x = NB, y = fit, group = factor(UP)),
+            stat = "identity", linewidth = 1) +
+  # 在圖表中加上呈現來自syl.int.ef物件預測值的數據點，將NB對應至X軸而fit對應至Y軸
+  # 並以UP指定進行分組和使用不同樣式的數據點。使用factor()函數的原因同上
+  geom_point(data = syl.int.ef, 
+             mapping = aes(x = NB, y = fit, group = factor(UP), shape = factor(UP)),
+             stat = "identity", size = 3) +
+  labs(x = "NB", y = "Predicted Acceptability", title = "MeanResp ~ NB * UP",
+       linetype = "UP") +
+  theme_bw()
+
+# 進行標準化的多元線性迴歸模型
+syl$MeanResp.z = scale(syl$MeanResp)		# 將所有變量先轉換為z分數
+syl$NB.z = scale(syl$NB) 
+syl$UP.z = scale(syl$UP)
+# 以標準化後的變量建立含有交互作用的迴歸模型
+syl.int.z = lm(MeanResp.z ~ NB.z * UP.z, data = syl)
+summary(syl.int.z)
