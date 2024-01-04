@@ -492,3 +492,22 @@ syl$UP.z = scale(syl$UP)
 # 以標準化後的變量建立含有交互作用的迴歸模型
 syl.int.z = lm(MeanResp.z ~ NB.z * UP.z, data = syl)
 summary(syl.int.z)
+
+# 三之四節
+# 讀取含有自訂函數lorch.myers.simple()的程式碼
+source(lorch.myers.R)
+lmd = read.delim("lorchmyersdat.txt") 
+head(lmd)
+# 以自訂函數進行重覆測量簡單線性迴歸
+lorch.myers.simple(lmd)
+
+# 練習十四
+# 直接以Y ~ X的語法進行簡單線性迴歸：我們得到的結論仍然是X有顯著的主要效應，
+# 但同時我們也會看到比較低的p值。這代表沒有考慮組內設計的迴歸分析會有著更高的
+# 第一型誤差機率(錯誤地得到應該推翻虛無假設的結論)
+summary(lm(Y ~ X, data = lmd))
+
+# 進行重複測量變異數分析
+lmd.aov = aov(Y ~ X + Error(as.factor(Subj)/X), data = lmd)
+summary(lmd.aov)
+
