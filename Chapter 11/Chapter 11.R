@@ -504,10 +504,131 @@ lorch.myers.simple(lmd)
 # 練習十四
 # 直接以Y ~ X的語法進行簡單線性迴歸：我們得到的結論仍然是X有顯著的主要效應，
 # 但同時我們也會看到比較低的p值。這代表沒有考慮組內設計的迴歸分析會有著更高的
-# 第一型誤差機率(錯誤地得到應該推翻虛無假設的結論)
+# 第二型誤差機率(錯誤地得到應該推翻虛無假設的結論)
 summary(lm(Y ~ X, data = lmd))
 
 # 進行重複測量變異數分析
 lmd.aov = aov(Y ~ X + Error(as.factor(Subj)/X), data = lmd)
 summary(lmd.aov)
 
+# 四之一之一
+# 以對數詞頻、熟悉度、習得年齡對單詞音長影響做為檢查模型適合度的例子
+fd = read.delim("freqdur.txt")	# 過了這麼久，應該是需要重新讀取檔案了
+fd$LogFreq = log(fd$Freq)
+fd.lm = lm(Dur ~ LogFreq + AoA + Fam, data = fd)
+summary(fd.lm)
+
+yhat = predict(fd.lm) 			# 模型的估計值「ŷ」
+n = nrow(fd) 				        # 樣本數量
+SSM = sum((yhat - mean(fd$Dur)) ^ 2) 	# 模型與實際數據差距的平方和
+k = 4 # 模型裡的係數數量：截距、詞頻(LogFreq)、習得年齡(AoA)、熟悉度(Fam) 
+dfM = k - 1 			         	# 模型的自由度(df)
+MSM = SSM/dfM 				      # 模型平方和平均數，也就是可解釋的變異
+RSS = sum(resid(fd.lm) ^ 2) 		# 殘餘平方和(平方誤差總和)
+dfE = n - k 				        # 誤差值的自由度
+MSE = RSS/dfE 			        # 模型殘餘平方和平均數，也就是無法解釋的變異
+f.val = MSM/MSE 			        # F值等於可解釋變異和不可解釋變異的比例
+p.val = pf(f.val, df1 = dfM, df2 = dfE, lower.tail = F) # 取得F分佈右尾p值
+
+# r2 = 迴歸模型中單詞音長估計值「ŷ」和實際單詞音長的變異數比率(ratio)
+var(yhat)/var(fd$Dur)
+
+# 以有無截距的迴歸模型示範以AIC進行模型比較
+native = read.delim("nativism.txt")    # 以防萬一，重新讀取檔案
+# 建立有截距的模型
+native.lm = lm(Accuracy ~ AgeAcquire + YearsUsing, data = native)
+AIC(native.lm)
+#[1] -25.14485
+# 建立無截距的模型
+native.lm.noint = lm(Accuracy ~ 0 + AgeAcquire + YearsUsing, data=native)
+AIC(native.lm.noint)
+# [1] -0.1229758
+
+# 進行似然比檢定
+anova(native.lm.noint, native.lm) 
+
+# 回到freqdur.txt的例子，以似然比檢定測試對數詞頻是否有顯著效應
+# 先重新建立包含所有變量的迴歸模型檢查個別係數的效應顯著性
+fd.lm = lm(Dur ~ LogFreq + AoA + Fam,data = fd)
+summary(fd.lm)
+# 建立少了詞頻的多元迴歸模型
+fd.lm.nofreq = lm(Dur ~ AoA + Fam,data = fd)
+# 進行兩個有著巢式結構差異模型的似然比檢定
+anova(fd.lm.nofreq, fd.lm)
+
+# 練習十五
+# 一、建立只有截距且因變量為Accuracy的模型
+native.b0 = lm(Accuracy ~ 1, data = native)
+# 二、建立含有截距且自變量為AgeAcquire的模型
+native.age = lm(Accuracy ~ AgeAcquire, data = native)
+# 與(一)進行似然比檢定，加入AgeAcquire的模型比只有截距的模型解釋更多因變量變異
+anova(native.b0, native.age)
+# 三、保留AgeAcquire，再加入YearsUsing自變量
+native.age.yr = lm(Accuracy ~ AgeAcquire + YearsUsing, data = native)
+# 與(二)進行似然比檢定，加入YearsUsing並沒有解釋更多因變量變異！
+anova(native.age, native.age.yr)
+# 最終模型為Accuracy ~ AgeAcquire，與稍早的測試類似
+
+# 以似然比檢定測式迴歸模型中不同變量效應之間是否有顯著差異。
+# 建立複雜模型
+native.lm = lm(Accuracy ~ AgeAcquire + YearsUsing, data = native)
+# 建立簡單模型
+native.lm.equal = lm(Accuracy ~ I(AgeAcquire + YearsUsing), data = native)
+anova(native.lm.equal, native.lm)
+
+# 四之二之一節
+x = runif(10)				# 從均勻分佈中抽樣10筆數值
+# 以x為基礎加上亂數除以2得出y值，這樣x和y雖不完全一樣，但就會部分相關了，對吧？
+y = x + runif(10) / 2 			
+cor(x, y) 					# 沒錯，r絕對值非常接近1但不等於1
+# 根據x與y繪製散佈圖
+plot(x, y, xlim = c(0, 1), ylim = c(0, max(y)))
+# 繪製每個從原點指向(x, y)的箭頭，還蠻炫的吧！
+arrows(0, 0, x, y)
+
+# 示範當兩個自變量完全共現時進行迴歸分析時會產生的問題
+set.seed(30)			  # 指定亂數種子
+x1 = rnorm(100)			# 這裡不用指定亂數種子，因為不同抽樣結果都一樣
+x2 = 2 * x1 + 1			# 以任何線性方程式產生x2都會讓x2和x1完全共線
+cor(x1, x2) 			  # 相關性為1，完全共線
+y = rnorm(100) 			# 不管你的因變量是什麼，結果都一樣
+summary(lm(y ~ x1 + x2)) 	# R不開心，給你NA(Not Applicable)
+summary(lm(y ~ x2 + x1)) 	# 順序不影響迴歸分析，也不影響R不開心的程度
+
+# nativism.txt例子中兩個自變量高度相關
+native = read.delim("nativism.txt")		# 假設你從頭進行
+cor(native$AgeAcquire, native$YearsUsing)
+
+# 以car套件中的vif()函數計算兩個自變量的VIF值
+library(car)		# 還沒安裝套件的話就先安裝唷！
+native.lm = lm(Accuracy ~ AgeAcquire + YearsUsing, data = native)
+vif(native.lm)		# 將建立好的迴歸模型放入vif()函數即可
+
+# 計算條件數測試是否自變量沒有共線性問題
+kappa(native[2:3])　　# 第二欄為習得年齡、第三欄為語言使用時間
+
+# 以languageR套件的collin.fnc()函數測試包含截距在內的共線性
+library(languageR)			# 還是提醒先安裝並載入套件
+# 一樣放入自變量的欄位就好，得到的共線性報告先存入native.col
+native.col = collin.fnc(native[2:3])
+# 從native.col的cnumber欄位取得條件數
+native.col$cnumber
+
+# 改以freqdur.txt的例子以三種方式測試共線性影響
+fd = read.delim("freqdur.txt")			   	# 假設你從頭開始
+fd.lm = lm(Dur ~ LogFreq + AoA + Fam,data = fd)
+vif(fd.lm)						                 	# 通通小於5，沒問題！
+kappa(fd[c("AoA","Fam","LogFreq")])			# 小於30，沒問題！
+fd.col = collin.fnc(fd[c("AoA","Fam","LogFreq")])
+fd.col$cnumber						              # 啊！超過30，糟糕了
+
+# 四之二之二
+# 建立只含有截距且因變量為Dur的迴歸模型
+fd.lm0 = lm(Dur ~ 1, data = fd) 
+summary(fd.lm0)
+# 迴歸模型中截距數據等同於單一樣本t檢定的數據
+t.test(fd$Dur)
+
+# 進行逐步迴歸分析並將結果存入fd.steps
+fd.steps = step(fd.lm0, Dur ~ LogFreq + AoA + Fam, data = fd)
+summary(fd.steps)

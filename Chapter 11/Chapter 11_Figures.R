@@ -152,3 +152,13 @@ ggplot() +
 
 ggsave(filename = "ch11.figure13b.png", width = 1200, height = 900, unit = "px",
        dpi = 200)
+
+# Figure 14
+png(filename = "ch11.figure14.png", height = 900, width = 1200, unit = "px",
+    res = 200)
+
+plot(c(1, 2), c(2, 4), xlim = c(0, 5), ylim = c(0, 5))
+arrows(0, 0, 1, 2) 
+arrows(0, 0, 2, 4, lty = 2, lwd = 2)
+
+dev.off()
