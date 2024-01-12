@@ -246,3 +246,48 @@ abline(lm(logit.y ~ mean.x)) 			      # 加上線性迴歸最佳配適線
 # 以effects套件繪製圖表，結合圖五及圖六的優點
 library(effects)			      # 記得先安裝載入套件
 plot(allEffects(rd.glm))		# 取得rd.glm模型中的所有效應繪製圖表
+
+# 二之六節
+# 重新建立兩個我們要進行比較的模型。如果你的變量已經消失的，也往前翻幾頁重新建立吧
+cheese0.glm = glm(Suffixed.f ~ 1, family = "binomial")
+cheese3.glm = glm(Suffixed.f ~ Frequency + WordLength, family = "binomial")
+# 以logLik()函數取出各個模型的對數似然值，套用公式八，再使用as.numeric()
+# 函數將結果轉為不帶其他文字資訊的數值
+as.numeric((logLik(cheese0.glm) - logLik(cheese3.glm)) / logLik(cheese0.glm))
+
+# 從完整模型的檢定報告數據計算RL2
+cheese3.sum = summary(cheese3.glm)
+cheese3.LL = -2 * cheese3.sum$deviance	# 取得檢定報告中殘餘偏差似然值
+cheese0.LL = -2 * cheese3.sum$null.deviance	# 取得檢定報告中零偏差似然值
+(cheese0.LL - cheese3.LL) / cheese0.LL	# 公式八
+
+# 進行類似標準化係數的邏輯迴歸分析
+# 以scale()函數將自變量進行z分數轉換
+cheese3.z.glm = glm(Suffixed.f ~ scale(Frequency) + 
+       					scale(WordLength), family = "binomial")
+summary(cheese3.z.glm)
+
+# 利用似然比檢定比較兩個自變量的效應值是否有顯著差距
+# 以I()函數告訴R「+」是將兩個自變量加在一起的數學運算，而不是加入獨立自變量的意思
+cheese3.z.same.glm = glm(Suffixed.f ~ I(scale(Frequency) + 
+                                          scale(WordLength)), family = "binomial")
+# 注意要設定test參數哦！
+anova(cheese3.z.same.glm, cheese3.z.glm, test = "Chisq")
+
+# 以Menard (2004)的方法，利用因變量對數勝率預測值的標準差進行真的標準化邏輯迴歸分析
+coefs = coef(cheese3.glm)		# 從模型中取出所有效應值
+Frequency.coef = coefs["Frequency"]	# 取出詞頻效應值
+WordLength.coef = coefs["WordLength"]	# 取出單詞長度效應值
+# 使用<公式八>計算邏輯迴歸的確定係數，以as.numeric()函數將文字資訊從計算結果移除
+RL = sqrt(as.numeric((logLik(cheese0.glm) -
+                        logLik(cheese3.glm)) / logLik(cheese0.glm)))
+# 計算自變量標準差
+Frequency.sd = sd(Frequency)			
+WordLength.sd = sd(WordLength)
+# 取出因變量預測對數勝率計算標準差
+logit.yhat.sd = sd(predict(cheese3.glm)) 	
+# 計算標準化自變量係數
+Frequency.beta = Frequency.coef * RL * (Frequency.sd / logit.yhat.sd)
+WordLength.beta = WordLength.coef * RL * (WordLength.sd / logit.yhat.sd)
+c(Frequency.beta, WordLength.beta)
+#[1] -0.7674511 0.04311755 
