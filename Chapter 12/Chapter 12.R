@@ -291,3 +291,111 @@ Frequency.beta = Frequency.coef * RL * (Frequency.sd / logit.yhat.sd)
 WordLength.beta = WordLength.coef * RL * (WordLength.sd / logit.yhat.sd)
 c(Frequency.beta, WordLength.beta)
 #[1] -0.7674511 0.04311755 
+
+# 三之一節
+# 測試從名詞片語複雜與否會不會影響從名詞片語中移出某個詞到主題位置的合語法性
+demo.dat = read.delim("demo.txt")
+head(demo.dat)
+
+# 練習七
+# 新增原始類別因子並將預設的虛擬編碼改為總和編碼
+demo.dat$ComplexNPFac = ifelse(demo.dat$ComplexNP == 1, "Yes", "No")
+demo.dat$TopicFac = ifelse(demo.dat$Topic == 1, "Yes", "No")
+# 先將新的欄位轉換為因子
+demo.dat$ComplexNPFac = as.factor(demo.dat$ComplexNPFac)
+demo.dat$TopicFac = as.factor(demo.dat$TopicFac)
+# 檢查預設的虛擬編碼對比
+contrasts(demo.dat$ComplexNPFac)
+contrasts(demo.dat$TopicFac)
+# 轉換為總和編碼
+contrasts(demo.dat$ComplexNPFac) = contr.sum(levels(demo.dat$ComplexNPFac))
+contrasts(demo.dat$TopicFac) = contr.sum(levels(demo.dat$TopicFac))
+# 檢查改變後的總和編碼對比
+contrasts(demo.dat$ComplexNPFac)
+contrasts(demo.dat$TopicFac)
+
+# 為每位母語者進行邏輯迴歸
+CNP.coef = numeric(7)	# 建立長度為7的數值向量儲存每位母語者ComplexNP係數
+Top.coef = numeric(7)	# 儲存每位母語者Topic係數的數值向量
+CxT.coef = numeric(7)	# 儲存每位母語者交互作用係數的數值向量
+for (i in 1:7) { 		# 以迴圈為每位母語者進行邏輯迴歸
+  # 依編號取得每位母語者的資料子集合
+  demo.dat.i = subset(demo.dat, demo.dat$Speaker == i) 
+  # 進行邏輯迴歸
+  glm.i = glm(Judgment ~ ComplexNP * Topic, 
+  family = binomial, data = demo.dat.i)
+  # 取出所有係數儲存至數值向量
+  coefs = coef(glm.i)
+ 	CNP.coef[i] = coefs["ComplexNP"]
+ 	Top.coef[i] = coefs["Topic"]
+ 	CxT.coef[i] = coefs["ComplexNP:Topic"]
+}
+
+# 為每一組係數進行虛無假設為「0」的t檢定
+t.test(CNP.coef)$p.value # 名詞複雜度t檢定，只取p值
+#[1] 0.02073655
+t.test(Top.coef)$p.value # 主題移位t檢定
+#[1] 8.145483e-06
+t.test(CxT.coef)$p.value # 交互作用t檢定
+#[1] 0.02073655
+
+# 三之二之一
+# 我們可以先直接設定參數「stringsAsFactors」為「TRUE」，
+# 代表字串欄位直接轉換成因子並以使用預設虛擬編碼系統
+classifiers = read.delim("classifiers.txt", stringsAsFactors = TRUE)
+
+# 把有著三個層次的因變量根據是否為「1(條)」、「2(根)」或「3(支)」
+# 拆解成三個以「0」與「1」呈現的二元因變量
+# 當Class為1，欄位tiao也為1，否則為0，以此類推
+classifiers$tiao = ifelse(classifiers$Class == 1, 1, 0)
+classifiers$gen = ifelse(classifiers$Class == 2, 1, 0)
+classifiers$zhi = ifelse(classifiers$Class == 3, 1, 0)
+
+# 針對每個新的二元因變量進行個別的邏輯迴歸分析
+# 預測量詞是否為「條」的邏輯迴歸模型，以此類推
+tiao.glm = glm(tiao ~ Flexible + Thin + Round, family = "binomial", 
+               data = classifiers)
+gen.glm = glm(gen ~ Flexible + Thin + Round, family = "binomial", 
+                data = classifiers)
+zhi.glm = glm(zhi ~ Flexible + Thin + Round, family = "binomial", 
+                data = classifiers)
+
+# 無法直接以glm()對含有超過兩個層次的因變量進行邏輯迴歸分析
+summary(glm(Class ~ Flexible + Thin + Round, family = "binomial", 
+            data = classifiers))
+
+# 使用nnet套件進行多項邏輯迴歸分析
+library(nnet) 			# 記得先安裝載入套件
+# 建立模型的語法都相同，這裡以tiao為二元因變量進行示範
+tiao.multinom = multinom(tiao ~ Flexible + Thin + Round, data = classifiers)
+summary(tiao.multinom)
+
+# 練習八
+# 截距p值
+int.z = -1.7979206 / 0.7164164
+2 * pnorm(int.z)
+# 彈性p值
+flex.z = 4.7943608 / 0.8575578
+2 * pnorm(flex.z, lower.tail = F)  # z值為正數，所以先取得右尾p值再乘以2
+# 細長p值
+thin.z = -1.226217 / 0.8255739
+2 * pnorm(thin.z)
+# 圓p值
+round.z = 0.2615881 / 0.732752
+2 * pnorm(round.z, lower.tail = F) # z值為正數，所以先取得右尾p值再乘以2
+
+# 進行三元因變量的多項邏輯迴歸分析
+allClass.multinom = multinom(Class ~ Flexible + Thin + Round, 
+                             data = classifiers)
+summary(allClass.multinom)
+
+# 手動從多項迴歸分析模型中取得係數與標準誤，並計算z值與p值
+results = summary(allClass.multinom)		# 將檢定報告另存
+coef.vals = results$coefficients		# 取得係數矩陣
+se.vals = results$standard.errors		# 取得標準誤矩陣
+z.vals = coef.vals/se.vals			# 將係數矩陣除以標準誤矩陣取得z
+# 以z值矩陣產生p值。由於z值可能大於或小於0，這裡一律以abs()先轉換為絕對z值
+# 再加上「-」轉換為負數，所以不管原始z值為何，一律都是先取得左尾p值再乘以2
+p.vals = 2*pnorm(-abs(z.vals))			
+z.vals
+p.vals
