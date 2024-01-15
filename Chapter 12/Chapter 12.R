@@ -420,3 +420,61 @@ train.net = neuralnet(tiao + gen + zhi ~ FlexibleNum + ThinNum + RoundNum,
 # 檢視訓練完成的類神經網路
 plot(train.net, rep = "best")
 
+# 三之三
+# 手動匯入Rbrul程式碼並執行Rbrul
+source("http://www.danielezrajohnson.com/Rbrul.R")
+rbrul()
+
+# 四之一
+# 泊松分佈
+set.seed(1) 					                      # 指定亂數種子
+pois.sample = rpois(n = 100000, lambda = 3)	# 從lambda為3的泊松分佈抽樣
+mean(pois.sample) 				                  # 抽樣平均數
+#[1] 2.99847
+var(pois.sample)  				                  # 抽樣變異數，和平均數非常接近了
+#[1] 3.015338
+x = 1:10					                         	# 建立一個1至10的次數向量
+plot(x, dpois(x, lambda = 3))		           	# 依次數的分佈密度繪製散佈圖
+ppois(3, lambda = 3) 			                	# 分佈中次數大於3的機率
+#[1] 0.6472319
+ppois(3, lambda = 3, lower.tail = F)		    # 分佈中次數小於3的機率
+
+# 台灣閩南語「著」的重覆N次的次數泊松迴歸分析
+dui = read.delim("DuiCounts.txt")
+# 建立只包含重覆N次與N次是否為奇數做為自變量的樂松迴歸模型
+dui.glm = glm(Count ~ NumSyl + Oddness, family = "poisson", data = dui)
+summary(dui.glm)
+
+# 計算當「著」只重覆1次、且重覆次數為奇數(以「1」表示)時的出現次數估計
+# 別忘了使用exp()將對數以指數反轉為原始次數
+exp(6.74099 + 1 * -0.59614 + 1 * 0.45254)
+
+# 練習八
+# 以資料框的NumSyl與Oddness從迴型中取得估計的對數次數
+dui.pred = predict(dui.glm, dui[1:2])
+# 將對數次數以指數反轉回原始次數
+dui.pred = exp(dui.pred)
+# 以plot使用實際資料做出散佈圖，並以pch設定數據點以空心方塊呈現
+plot(Count ~ NumSyl, data = dui, xlab = "Number of Syllables", ylab = "Count", 
+     pch = 0, cex = 2)
+# 以實際資料在底圖上加上折線
+lines(Count ~ NumSyl, data = dui, lwd = 1.5)
+# 以估計次數加上數據點，並以pch設定數據點以實心圓呈現
+points(dui.pred, pch = 16, cex = 2)
+# 以估計次數加上折線，並以lty設定為虛線呈現
+lines(dui.pred, lty = 2, lwd = 1.5)
+# 在圖表右上角加入圖例，而圖例文字與圖樣都根據上面加上數據的順序呈現
+legend(x = "topright", legend = c("Observed", "Model"), 
+       lty = c(1, 2), pch = c(0, 16))
+
+# 四之二
+# 以詞頻、熟悉度、習得年齡等變量的例子示範次序變量迴歸
+fd = read.delim("freqdur.txt")
+fd$AoA.ord = floor(fd$AoA)                      # 無條件捨去轉換成整數
+fd$Fam.ord = floor(fd$Fam)                      # 無條件捨去轉換成整數 
+fd$AoA.ord = factor(fd$AoA.ord, ordered = T)	  # 將變量轉換為次序變量
+fd$Fam.ord = ordered(fd$Fam.ord)			          # 同上的另一個方法
+
+# 因變量「Dur」還是連續變量，所以我們和前一章一樣建立一般線性迴歸模型
+freq.ord.lm = lm(Dur ~ log(Freq) + AoA.ord + Fam.ord, data = fd)
+summary(freq.ord.lm)

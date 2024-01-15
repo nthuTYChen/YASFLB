@@ -114,3 +114,52 @@ png(filename = "ch12.figure8.png", width = 1200, height = 900, unit = "px",
 plot(train.net, rep = "best")
 
 dev.off()
+
+# Figure 9
+png(filename = "ch12.figure9.png", width = 1200, height = 900, unit = "px",
+    res = 200)
+
+x = 1:10					                         	
+plot(x, dpois(x, lambda = 3))	
+
+dev.off()
+
+# Figure 10
+dui = read.delim("DuiCounts.txt")
+dui.glm = glm(Count ~ NumSyl + Oddness, family = "poisson", data = dui)
+
+dui.pred = exp(predict(dui.glm, dui[1:2]))
+
+png(filename = "ch12.figure10.png", width = 1200, height = 900, unit = "px",
+    res = 200)
+
+plot(Count ~ NumSyl, data = dui, xlab = "Number of Syllables", ylab = "Count", 
+     pch = 0, cex = 2)
+lines(Count ~ NumSyl, data = dui, lwd = 1.5)
+points(dui.pred, pch = 16, cex = 2)
+lines(dui.pred, lty = 2, lwd = 1.5)
+
+legend(x = "topright", legend = c("Observed", "Model"), 
+       lty = c(1, 2), pch = c(0, 16))
+
+dev.off()
+
+# Figure 11
+dui.poly.pois = glm(Count ~ I(NumSyl ^ 2) * NumSyl * Oddness, 
+                    family = "poisson", data = dui)
+
+dui.pred = exp(predict(dui.poly.pois, dui[1:2]))
+
+png(filename = "ch12.figure11.png", width = 1200, height = 900, unit = "px",
+    res = 200)
+
+plot(Count ~ NumSyl, data = dui, xlab = "Number of Syllables", ylab = "Count", 
+     pch = 0, cex = 2)
+lines(Count ~ NumSyl, data = dui, lwd = 1.5)
+points(dui.pred, pch = 16, cex = 2)
+lines(dui.pred, lty = 2, lwd = 1.5)
+
+legend(x = "topright", legend = c("Observed", "Model"), 
+       lty = c(1, 2), pch = c(0, 16))
+
+dev.off()
