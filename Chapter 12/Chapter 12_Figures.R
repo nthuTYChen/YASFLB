@@ -87,9 +87,30 @@ library(effects)
 rd = read.delim("richdeletion.txt")
 rd.glm = glm(Deletion ~ Income, family = "binomial", data = rd)
 
-png(filename = "ch12.figure6.png", width = 1200, height = 900, unit = "px",
+png(filename = "ch12.figure7.png", width = 1200, height = 900, unit = "px",
     res = 200)
 
 plot(allEffects(rd.glm))		
+
+dev.off()
+
+# Figure 8
+library("neuralnet")
+set.seed(1)
+classifiers = read.delim("classifiers.txt", stringsAsFactor = T)
+classifiers$tiao = ifelse(classifiers$Class == 1, 1, 0)
+classifiers$gen = ifelse(classifiers$Class == 2, 1, 0)
+classifiers$zhi = ifelse(classifiers$Class == 3, 1, 0)
+classifiers$FlexibleNum = ifelse(classifiers$Flexible == "Yes", 1, 0)
+classifiers$ThinNum = ifelse(classifiers$Thin == "Yes", 1, 0)
+classifiers$RoundNum = ifelse(classifiers$Round == "Yes", 1, 0)
+
+train.net = neuralnet(tiao + gen + zhi ~ FlexibleNum + ThinNum + RoundNum, 
+                      data = classifiers, hidden = 0, rep = 5)
+
+png(filename = "ch12.figure8.png", width = 1200, height = 900, unit = "px",
+    res = 200)
+
+plot(train.net, rep = "best")
 
 dev.off()

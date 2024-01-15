@@ -399,3 +399,24 @@ z.vals = coef.vals/se.vals			# 將係數矩陣除以標準誤矩陣取得z
 p.vals = 2*pnorm(-abs(z.vals))			
 z.vals
 p.vals
+
+# 三之二之二
+# 類神經網路
+library("neuralnet")
+set.seed(1)			# 指定亂數種子
+# 有需要的話重新載入資料，並將三元因變量拆解為三個二元因變量
+classifiers = read.delim("classifiers.txt", stringsAsFactor = T)
+classifiers$tiao = ifelse(classifiers$Class == 1, 1, 0)
+classifiers$gen = ifelse(classifiers$Class == 2, 1, 0)
+classifiers$zhi = ifelse(classifiers$Class == 3, 1, 0)
+# 也將三個自變量轉換為適用於建立類神經網路的二元數值形式
+classifiers$FlexibleNum = ifelse(classifiers$Flexible == "Yes", 1, 0)
+classifiers$ThinNum = ifelse(classifiers$Thin == "Yes", 1, 0)
+classifiers$RoundNum = ifelse(classifiers$Round == "Yes", 1, 0)
+
+# 建立類神經網路，設定無隱藏層且訓練重覆次數為5
+train.net = neuralnet(tiao + gen + zhi ~ FlexibleNum + ThinNum + RoundNum, 
+                      data = classifiers, hidden = 0, rep = 5)
+# 檢視訓練完成的類神經網路
+plot(train.net, rep = "best")
+
