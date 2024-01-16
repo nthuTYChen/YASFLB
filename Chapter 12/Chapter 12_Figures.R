@@ -163,3 +163,81 @@ legend(x = "topright", legend = c("Observed", "Model"),
        lty = c(1, 2), pch = c(0, 16))
 
 dev.off()
+
+# Figure 12
+jabberwocky = read.table("Jabberwocky_OnlyWords.txt")
+jabberwocky = jabberwocky$V1        
+jabberwocky.tabtab = table(jabberwocky.tab)   
+
+library(zipfR)   					                 
+token.freq = names(jabberwocky.tabtab) 	   
+token.freq = as.numeric(token.freq)		      
+type.freq = as.numeric(jabberwocky.tabtab)	
+jabberwocky.spc = spc(m = token.freq, Vm = jabberwocky.tabtab)
+
+jabberwocky.zm = lnre(type = "zm", jabberwocky.spc)
+
+n.int = seq(1, 10000, length = 20)	
+jabberwocky.vgc = lnre.vgc(jabberwocky.zm, n.int)
+
+png(filename = "ch12.figure12.png", width = 1200, height = 900, unit = "px",
+    res = 200)
+
+plot(jabberwocky.vgc)		           
+
+dev.off()
+
+# Figure 13
+rtacc = read.delim("RTacc.txt")
+
+png(filename = "ch12.figure13.png", width = 1200, height = 900, unit = "px",
+    res = 200)
+
+plot(Acc ~ RT, data = rtacc)    
+
+dev.off()
+
+# Figure 14
+png(filename = "ch12.figure14.png", width = 1200, height = 900, unit = "px",
+    res = 200)
+
+scatter.smooth(rtacc$RT, rtacc$Acc)
+
+dev.off()
+
+# Figure 15
+png(filename = "ch12.figure15.png", width = 1200, height = 900, unit = "px",
+    res = 200)
+
+plot(rtacc.gam)	
+
+dev.off()
+
+# Figure 16
+png(filename = "ch12.figure16.png", width = 1200, height = 900, unit = "px",
+    res = 200)
+
+plot(Acc ~ RT, data = rtacc)		  
+RTrange = range(rtacc$RT)		     
+rtacc.newX = seq(RTrange[1], RTrange[2], by = 1)
+rtacc.pred = predict(rtacc.gam, data.frame(RT = rtacc.newX))
+lines(rtacc.pred ~ rtacc.newX)		
+
+dev.off()
+
+# Figure 17
+rtacc.pred = predict(rtacc.gam, data.frame(RT = rtacc.newRT), se.fit = T)
+rtacc.pred.df = as.data.frame(rtacc.pred)
+rtacc.pred.df$RT = rtacc.newRT
+library(ggplot2)
+ggplot() + geom_point(data = rtacc, mapping = aes(x = RT, y = Acc),
+                      color = "darkgrey", alpha = .7, size = 3) +
+  geom_line(data = rtacc.pred.df, mapping = aes(x = RT, y = fit)) +
+  geom_ribbon(data = rtacc.pred.df, 
+              mapping = aes(x = RT, y = fit, ymin = fit - se.fit * 1.96,
+                            ymax = fit + se.fit * 1.96), alpha = .3) +
+  labs(title = "Generalized Additive Modeling", x = "RT", y = "Accuracy") +
+  theme_bw()
+
+ggsave(filename = "ch12.figure17.png", width = 1200, height = 900, unit = "px",
+       dpi = 200)

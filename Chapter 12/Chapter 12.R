@@ -472,9 +472,132 @@ legend(x = "topright", legend = c("Observed", "Model"),
 fd = read.delim("freqdur.txt")
 fd$AoA.ord = floor(fd$AoA)                      # 無條件捨去轉換成整數
 fd$Fam.ord = floor(fd$Fam)                      # 無條件捨去轉換成整數 
-fd$AoA.ord = factor(fd$AoA.ord, ordered = T)	  # 將變量轉換為次序變量
-fd$Fam.ord = ordered(fd$Fam.ord)			          # 同上的另一個方法
+fd$AoA.ord = as.factor(fd$AoA.ord)	            # 將數值轉換為因子層次
+fd$Fam.ord = as.factor(fd$Fam.ord)            	# 同上
+levels(fd$AoA.ord)			# 可以看到轉換成功的結果，Fam亦同
+
+fd$AoA.ord.h = fd$AoA.ord	# 另外複製Helmert編碼使用的因子 
+fd$Fam.ord.h = fd$Fam.ord
+# 依兩個因子的層子產生Helmert編碼並取代預設的虛擬編碼
+contrasts(fd$AoA.ord.h) = contr.helmert(levels(fd$AoA.ord.h)) 
+contrasts(fd$Fam.ord.h) = contr.helmert(levels(fd$Fam.ord.h))
+contrasts(fd$AoA.ord.h)		# 以習得年齡的對比檢視Helmert編碼
+
 
 # 因變量「Dur」還是連續變量，所以我們和前一章一樣建立一般線性迴歸模型
-freq.ord.lm = lm(Dur ~ log(Freq) + AoA.ord + Fam.ord, data = fd)
+freq.ord.lm = lm(Dur ~ log(Freq) + AoA.ord.h + Fam.ord.h, data = fd)
 summary(freq.ord.lm)
+
+# 假設對數詞頻與熟悉度都為「0」的情況
+252.87363 + -1 * 1.18439		# 習得年齡層次「1」的估計單詞時長
+252.87363 + 1 * 1.18439		  # 習得年齡層次「2」的估計單詞時長
+252.87363 + -1 * 0.75505		# 習得年齡層次「1-4」的估計單詞時長
+252.87363 + 1 * 0.75505		  # 習得年齡層次「5」的估計單詞時長
+
+# 先複製另兩個因子欄位進行多項式編碼
+fd$AoA.ord.p = fd$AoA.ord # Prepare for polynomial coding 
+fd$Fam.ord.p = fd$Fam.ord # Ditto 
+# 第一種多項式編碼方式：使用factor()函數並將參數「ordered」設定為TRUE
+fd$AoA.ord.p = factor(fd$AoA.ord, ordered = T) 
+fd$Fam.ord.p = factor(fd$Fam.ord, ordered = T) 
+# 第二種方式：直接使用ordered()函數
+fd$AoA.ord.p = ordered(fd$AoA.ord) 
+fd$Fam.ord.p = ordered(fd$Fam.ord) 
+# 第三種方式：以contr.poly()產生多項式編碼並取代預設的虛擬編碼
+contrasts(fd$AoA.ord.p) = contr.poly(levels(fd$AoA.ord.p)) 
+contrasts(fd$Fam.ord.p) = contr.poly(levels(fd$Fam.ord.p))
+
+contrasts(fd$AoA.ord.p)
+
+# 多項式編碼建立同樣的線性迴歸模型
+freq.ord.poly = lm(Dur ~ log(Freq) + AoA.ord.p + Fam.ord.p, data = fd)
+summary(freq.ord.poly)
+
+# 以MASS套件進行勝算比例邏輯迴歸，並以詞頻預測(次序)熟悉度
+library(MASS)
+polr.all = polr(Fam.ord ~ log(Freq), data = fd)
+summary(polr.all) 
+
+# 以似然比檢定比較有無詞頻的模型，測試詞頻是否顯著地預測熟悉度次序
+polr.int = polr(Fam.ord ~ 1, data = fd)	# 把詞頻拿掉只剩截距
+anova(polr.int, polr.all) 		        	# 這裡的p只是非常小，不是真的0！
+
+# 練習九
+summary(polr.int)                    # 檢視只含有截距模型的截距係數
+xtabs(~ Fam.ord, data = fd)          # 計算Fam.ord中每個層次的數量
+log(6 / sum(63, 212, 555, 756, 97))           # logit(1|2) = -5.636574
+log(sum(6, 63) / sum(212, 555, 756, 97))      # logit(2|3) = -3.156075
+log(sum(6, 63, 212) / sum(555, 756, 97))      # logit(3|4) = -1.611571
+log(sum(6, 63, 212, 555) / sum(756, 97))      # logit(4|5) = -0.02013093
+log(sum(6, 63, 215, 555, 756) / 97)           # logit(5|6) = 2.799918
+
+# 四之三
+# 以傑伯沃基語料庫示範大量罕見事件模擬
+jabberwocky = read.table("Jabberwocky_OnlyWords.txt")
+head(jabberwocky)                   # V1(Variable 1)是預設的欄位名稱
+
+jabberwocky = jabberwocky$V1        # 從V1欄位取出值成為向量，覆蓋原本的物件
+
+jabberwocky.tab = table(jabberwocky)                  # 計算向量中相同值的頻率
+jabberwocky.tab
+
+jabberwocky.tabtab = table(jabberwocky.tab)           # 產生詞頻光譜
+jabberwocky.tabtab
+
+library(zipfR)   					                  # 記得先安裝
+token.freq = names(jabberwocky.tabtab) 	    # 取出表示詞彙頻率的欄位名稱
+token.freq = as.numeric(token.freq)		      # 將欄位名稱轉換為數值
+type.freq = as.numeric(jabberwocky.tabtab)	# 將表格去掉欄位名稱保留數值
+# 建立spc物件
+jabberwocky.spc = spc(m = token.freq, Vm = jabberwocky.tabtab)
+jabberwocky.spc
+
+# 以jabberwocky.spc頻率光譜進行ZM齊夫定律迴歸模型
+jabberwocky.zm = lnre(type = "zm", jabberwocky.spc)
+jabberwocky.zm
+
+n.int = seq(1, 10000, length = 20)	# 產生1至10000間的20個N相等間距
+# 以jabberwocky.zm模型和N相等間距產生詞彙增長曲線
+jabberwocky.vgc = lnre.vgc(jabberwocky.zm, n.int)
+plot(jabberwocky.vgc)		           	# 繪製詞彙增長曲線
+
+# 四之四節
+# 以某個心理語言學實驗中對於某組刺激項目的正確率和反應時間進行GAM示範
+rtacc = read.delim("RTacc.txt")
+plot(Acc ~ RT, data = rtacc)    # 產生ACC ~ RT散佈圖
+
+# 以scatter.smooth()函數加上LOESS趨勢線
+scatter.smooth(rtacc$RT, rtacc$Acc)
+
+# 以平滑函數轉換RT，建立GAM模型
+library(mgcv)					# 請先安裝載入套件
+rtacc.gam = gam(Acc ~ s(RT), data = rtacc)
+
+# 繪製呈現GAM模型的散佈圖
+plot(Acc ~ RT, data = rtacc)		  # 產生原始資料散佈圖
+RTrange = range(rtacc$RT)		      # 取得原始反應時間最小/最大值
+# 建立反應時間最小值到反應時間最大值以1為間隔的連續數值向量
+rtacc.newRT = seq(RTrange[1], RTrange[2], by = 1)
+# 以反應時間連續向量取得GAM模型中的估計值
+rtacc.pred = predict(rtacc.gam, data.frame(RT = rtacc.newRT))
+lines(rtacc.pred ~ rtacc.newRT)		# 以估計值與反應時間座標加上趨勢線
+
+# 一次取得含有標準誤與估計值的數據
+rtacc.pred = predict(rtacc.gam, data.frame(RT = rtacc.newRT), se.fit = T)
+# 將模型數據轉換為ggplot2喜愛的資料框格式
+rtacc.pred.df = as.data.frame(rtacc.pred)
+# 將用來產生估計值的反應時間數據結合至rtacc.pred.df
+rtacc.pred.df$RT = rtacc.newRT
+library(ggplot2)
+# 在geom_point()以實際數據rtacc在底圖上加上數據點
+ggplot() + geom_point(data = rtacc, mapping = aes(x = RT, y = Acc),
+                color = "darkgrey", alpha = .7, size = 3) +
+  # 在geom_line()以模型預測值rtacc.pred.df加上最佳配適線
+  geom_line(data = rtacc.pred.df, mapping = aes(x = RT, y = fit)) +
+  # 在geom_ribbon()以模型預測值以及標準誤計算95%信賴區間，加上陰影範圍
+  geom_ribbon(data = rtacc.pred.df, 
+                mapping = aes(x = RT, y = fit, ymin = fit - se.fit * 1.96,
+                              ymax = fit + se.fit * 1.96), alpha = .3) +
+	labs(title = "Generalized Additive Modeling", x = "RT", y = "Accuracy") +
+	theme_bw()
+
