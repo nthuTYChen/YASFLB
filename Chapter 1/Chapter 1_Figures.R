@@ -4,8 +4,8 @@ fakeMT2015 = data.frame(rep=c(1:10), count=c(3.8,2.6,2.9,2.2,1.9,1.3,0.8,0,0.6,0
                         modelFeet=c(3.8,2.6,2.9,2.2,1.95,1.32,1,0.3,0.1,-1), 
                         modelFeet=c(3.8,3,2.3,2.1,1.8,1.3,1.1,1,1,0.9))
 
-png(filename = "ch1.figure4.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch1.figure4.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 plot(fakeMT2015$count~fakeMT2015$rep, 
      main = "Repetitions of \"tioh\" in Myers and Tsay (2015)",

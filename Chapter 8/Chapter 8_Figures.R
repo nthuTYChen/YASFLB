@@ -15,7 +15,7 @@ VCM.marg = cbind(VCM, RowTotal = row.total)
 col.total = apply(VCM.marg, 2, sum)
 VCM.marg = rbind(VCM.marg, ColTotal = col.total)
 
-png(filename = "ch8.figure1.png", height = 900, width = 1200, units = "px",
+tiff(filename = "ch8.figure1.tiff", height = 1350, width = 1800, units = "px",
     res = 200)
 
 barplot(VowelCombos.mat,  		               		  
@@ -41,11 +41,11 @@ ggplot(data = VMC.df, mapping = aes(x = Vowel2, y = Freq,
        x = "Vowel 2", y = "Counts", fill = "Vowel 1") +
   theme_bw()
 
-ggsave(filename = "ch8.figure2.png", height = 900, width = 1200, units = "px",
+ggsave(filename = "ch8.figure2.tiff", height = 1350, width = 1800, units = "px",
        dpi = 200)
 
 # Figure 3
-png(filename = "ch8.figure3.png", height = 900, width = 1200, units = "px",
+tiff(filename = "ch8.figure3.tiff", height = 1350, width = 1800, units = "px",
     res = 200)
 
 mosaicplot(VowelCombos.mat, cex = 1, main = "VowelCombos") 
@@ -53,7 +53,7 @@ mosaicplot(VowelCombos.mat, cex = 1, main = "VowelCombos")
 dev.off()
 
 # Figure 4
-png(filename = "ch8.figure4.png", height = 900, width = 1200, units = "px",
+tiff(filename = "ch8.figure4.tiff", height = 1350, width = 1800, units = "px",
     res = 200)
 
 install.packages("vcd", dependencies = T, ask = F)	
@@ -65,7 +65,7 @@ mosaic(VowelCombos.mat, highlighting = "Vowel2",
 dev.off()
 
 # Figure 5
-png(filename = "ch8.figure5.png", height = 900, width = 1200, units = "px",
+tiff(filename = "ch8.figure5.tiff", height = 1350, width = 1800, units = "px",
     res = 200)
 
 VowelCombos.exp = VowelCombos.mat 	
@@ -78,7 +78,7 @@ mosaicplot(VowelCombos.exp, cex = 1, main = "VowelCombos (Expected)")
 dev.off()
 
 # Figure 6
-png(filename = "ch8.figure6.png", height = 900, width = 1200, units = "px",
+tiff(filename = "ch8.figure6.tiff", height = 1350, width = 1800, units = "px",
     res = 200)
 
 socdata = matrix(c(57, 112, 190, 11), ncol = 2) 
@@ -102,11 +102,11 @@ ggplot(data = fakeLangDist, mapping = aes(x = Classifier, y = Perc,
   labs(title = "Fake language distribution", x = "Classifier", y = "Proportion (%)") +
   theme_bw()
 
-ggsave(filename = "ch8.figure7.png", height = 900, width = 1200, units = "px",
+ggsave(filename = "ch8.figure7.tiff", height = 1350, width = 1800, units = "px",
        dpi = 200)
 
 # Figure 8
-png(filename = "ch8.figure8.png", height = 900, width = 1200, units = "px",
+tiff(filename = "ch8.figure8.tiff", height = 1350, width = 1800, units = "px",
     res = 200)
 
 chisq.value = seq(from = 0, to = 20, by = 0.01)

@@ -9,14 +9,14 @@ fd.noX.lm = lm(DurX ~ LogFreq + AoA + Fam, data = fd)
 
 fd.noX.resid = resid(fd.noX.lm)	
 
-png(filename = "ch11.figure7a.png", height = 900, width = 1200, unit = "px",
+tiff(filename = "ch11.figure7a.tiff", height = 1350, width = 1800, unit = "px",
     res = 200)
 
 hist(fd.noX.resid)
 
 dev.off()
 
-png(filename = "ch11.figure7b.png", height = 900, width = 1200, unit = "px",
+tiff(filename = "ch11.figure7b.tiff", height = 1350, width = 1800, unit = "px",
     res = 200)
 
 qqnorm(fd.noX.resid)	
@@ -28,14 +28,14 @@ dev.off()
 fd.withX.lm = lm(DurX ~ LogFreq + AoA + Fam + FactorX, data = fd)
 fd.withX.resid = resid(fd.withX.lm)
 
-png(filename = "ch11.figure8a.png", height = 900, width = 1200, unit = "px",
+tiff(filename = "ch11.figure8a.tiff", height = 1350, width = 1800, unit = "px",
     res = 200)
 
 hist(fd.withX.resid)
 
 dev.off()
 
-png(filename = "ch11.figure8b.png", height = 900, width = 1200, unit = "px",
+tiff(filename = "ch11.figure8b.tiff", height = 1350, width = 1800, unit = "px",
     res = 200)
 
 qqnorm(fd.withX.resid)	
@@ -52,7 +52,7 @@ x = 1:nrow(fd.sub)
 y = fd.sub$Dur
 fd.int.pred = predict(fd.int)
 
-png(filename = "ch11.figure9.png", height = 900, width = 1200, unit = "px",
+tiff(filename = "ch11.figure9.tiff", height = 1350, width = 1800, unit = "px",
     res = 200)
 
 plot(x, y, xlab = "", ylab = "Duration", 
@@ -69,7 +69,7 @@ y = c(3, 2, 1, 6, 5, 4, 9, 8, 7)
 
 fake.simp.lm = lm(y ~ x1)
 
-png(filename = "ch11.figure10.png", height = 900, width = 1200, unit = "px",
+tiff(filename = "ch11.figure10.tiff", height = 1350, width = 1800, unit = "px",
     res = 200)
 
 plot(x1, y)		  		                   
@@ -80,7 +80,7 @@ dev.off()
 # Figure 11
 fake.int.lm = lm(y ~ x1 * x2)
 
-png(filename = "ch11.figure11.png", height = 900, width = 1200, unit = "px",
+tiff(filename = "ch11.figure11.tiff", height = 1350, width = 1800, unit = "px",
     res = 200)
 
 plot(x1, y)		  		
@@ -90,7 +90,7 @@ lines(predict(fake.int.lm), lty = 2) 　　
 dev.off()
 
 # Figure 12
-png(filename = "ch11.figure12.png", height = 900, width = 1200, unit = "px",
+tiff(filename = "ch11.figure12.tiff", height = 1350, width = 1800, unit = "px",
     res = 200)
 
 plot(x2, y)
@@ -126,7 +126,7 @@ ggplot() +
        shape = "UP") +
   theme_bw()
 
-ggsave(filename = "ch11.figure13a.png", width = 1200, height = 900, unit = "px",
+ggsave(filename = "ch11.figure13a.tiff", width = 1800, height = 1350, unit = "px",
        dpi = 200)
 
 # Figure 13b
@@ -150,11 +150,11 @@ ggplot() +
        shape = "UP") +
   theme_bw()
 
-ggsave(filename = "ch11.figure13b.png", width = 1200, height = 900, unit = "px",
+ggsave(filename = "ch11.figure13b.tiff", width = 1800, height = 1350, unit = "px",
        dpi = 200)
 
 # Figure 14
-png(filename = "ch11.figure14.png", height = 900, width = 1200, unit = "px",
+tiff(filename = "ch11.figure14.tiff", height = 1350, width = 1800, unit = "px",
     res = 200)
 
 plot(c(1, 2), c(2, 4), xlim = c(0, 5), ylim = c(0, 5))

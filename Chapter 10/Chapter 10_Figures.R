@@ -11,7 +11,7 @@ ggplot(data = ddat,
        y = "Reaction Time (ms)") +
   theme_bw()
 
-ggsave(filename = "ch10.figure1.png", height = 900, width = 1200, units = "px",
+ggsave(filename = "ch10.figure1.tiff", height = 1350, width = 1800, units = "px",
        dpi = 200)
 
 # Figure 2
@@ -22,7 +22,7 @@ ggplot(ddat, aes(y=RT, x=Education, fill=Freq, group=Freq)) +
        y = "Reaction Time (ms)") +
   theme_bw()
 
-ggsave(filename = "ch10.figure2.png", height = 900, width = 1200, units = "px",
+ggsave(filename = "ch10.figure2.tiff", height = 1350, width = 1800, units = "px",
        dpi = 200)
 
 # Figure 3
@@ -35,7 +35,7 @@ ggplot(data = ddat,
        y = "Reaction Time (ms)") +
   theme_bw()
 
-ggsave(filename = "ch10.figure3.png", height = 900, width = 1200, units = "px",
+ggsave(filename = "ch10.figure3.tiff", height = 1350, width = 1800, units = "px",
        dpi = 200)
 
 # Figure 4
@@ -62,5 +62,5 @@ ggplot(data = ddat.lsmeans,
        title = "Education x Frequency x SynCat", color="Frequency") +
   theme_bw()
 
-ggsave(filename = "ch10.figure4.png", height = 900, width = 1200, units = "px",
+ggsave(filename = "ch10.figure4.tiff", height = 1350, width = 1800, units = "px",
        dpi = 200)

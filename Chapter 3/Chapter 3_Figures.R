@@ -4,43 +4,43 @@ dataLabel = c(1, 2, 3, 4, 5, 6)
 
 badLineData = data.frame(Score = dataPoints, Labels = dataLabel)
 
-png(filename = "ch3.figure11.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure11.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 plot(badLineData$Score~badLineData$Label, 
-     main = "不適當的折線圖範例",
-     ylab = "分數", 
-     xlab = "受試者編號", 
+     main = "Inppropriate Line Plot",
+     ylab = "Score", 
+     xlab = "SUbject ID", 
      ylim = c(0, 60),
      lwd = 2, pch = 16, type = "o")
 
 dev.off()
 
 # Figure 12a
-png(filename = "ch3.figure12a.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure12a.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 barplot(badLineData$Score ~ badLineData$Label, 
-     main = "適當的長條圖範例(分數與受試者編號順序無相關性)",
-     ylab = "分數", 
-     xlab = "受試者編號", 
+     main = "Appropriate Barlot (No Score-Subject Correlation)",
+     ylab = "Score", 
+     xlab = "Subject ID", 
      ylim = c(0, 60))
 
 dev.off()
 
 # Figure 12b
 dataPoints = c(80, 60, 45)
-dataLabel = c("動詞", "名詞", "其他")
+dataLabel = c("Verb", "Noun", "Other")
 
 goodBarPlotData = data.frame(Score = dataPoints, Labels = dataLabel)
 
-png(filename = "ch3.figure12b.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure12b.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 barplot(goodBarPlotData$Score ~ goodBarPlotData$Label, 
-        main = "適當的長條圖範例(詞頻變化與詞類之間順序無相關性)",
-        ylab = "數量", 
-        xlab = "詞類", 
+        main = "Appropriate Barplot (No Frequency-Class Correlation)",
+        ylab = "Counts", 
+        xlab = "Class", 
         ylim = c(0, 100))
 
 dev.off()
@@ -53,13 +53,13 @@ fakeVocSize = round(runif(100) * 30000)
 
 fakeAgeVocCor = data.frame(Age = fakeAge, VocSize = fakeVocSize)
 
-png(filename = "ch3.figure14.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure14.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 plot(fakeAgeVocCor$VocSize ~ fakeAgeVocCor$Age,
-     main = "年齡與字彙量散佈圖(根據隨機資料)",
-     ylab = "字彙量", 
-     xlab = "年齡", 
+     main = "Age-Vocabulary Scatterplot (based on random data)",
+     ylab = "Vocabulary Size", 
+     xlab = "Age", 
      lwd = 2, pch = 1, cex = 1.5, type = "p")
 
 dev.off()
@@ -70,8 +70,8 @@ results.mat = matrix(RTs, nrow = 2)
 rownames(results.mat) = c("nouns","verbs") 		
 colnames(results.mat) = c("Exp. 1","Exp. 2")	
 
-png(filename = "ch3.figure16.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure16.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 barplot(results.mat,			
 	beside=TRUE,				
@@ -87,8 +87,8 @@ dev.off()
 jabberwocky = readLines("Jabberwocky_OnlyWords.txt")
 jw.table = sort(table(jabberwocky), decreasing=TRUE)
 
-png(filename = "ch3.figure17.png", width = 2000, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure17.tif", width = 3000, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 barplot(jw.table, beside=T, names.arg=names(jw.table), 
         ylab = "Token counts", main="Jabberwocky word frequencies", 
@@ -97,8 +97,8 @@ barplot(jw.table, beside=T, names.arg=names(jw.table),
 dev.off()
 
 # Figure 18
-png(filename = "ch3.figure18.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure18.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 plot(x = 1:20, y = (1:20)^2,
      pch = 1, cex = 1.5, type = "p")
@@ -110,8 +110,8 @@ jw.words = names(jw.table)
 jw.freq = as.vector(jw.table)	
 word.lens = nchar(jw.words)	
 
-png(filename = "ch3.figure19.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure19.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 plot(x = as.vector(jw.table), y = nchar(jw.words),
      pch = 1, cex = 1.5, type = "p")
@@ -119,8 +119,8 @@ plot(x = as.vector(jw.table), y = nchar(jw.words),
 dev.off()
 
 # Figure 20
-png(filename = "ch3.figure20.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure20.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 plot(x = 1:20, y = (1:20)^2, pch = 1:20,
      cex = 1.5, type = "p") 
@@ -128,8 +128,8 @@ plot(x = 1:20, y = (1:20)^2, pch = 1:20,
 dev.off()
 
 # Figure 21
-png(filename = "ch3.figure21.png", width = 1200, height = 900, units = "px",
-    bg = "white", res = 200)
+tiff(filename = "ch3.figure21.tif", width = 1800, height = 1350, units = "px",
+    bg = "white", res = 300)
 
 plot(x = 1:20, y = (1:20)^2, type = "l", lwd = 2)
 
@@ -152,5 +152,5 @@ results.plot = results.plot +
   ylab("RT (ms)") +
   theme_bw()
 
-ggsave(file = "ch3.figure22.png", width = 1200, height = 900, units = "px",
-       dpi = 200)
+ggsave(file = "ch3.figure22.tiff", width = 1800, height = 1350, units = "px",
+       dpi = 300)

@@ -1,6 +1,6 @@
 # Figure 1
 
-png(filename = "ch7.figure1.png", width = 1200, height = 900, units = "px", res = 200)
+tiff(filename = "ch7.figure1.tiff", width = 1800, height = 1350, units = "px", res = 300)
 
 plot(function(x) {df(x, df1=5, df2=5)}, xlim=c(0,3), ylim=c(0,1), ylab = "", xlab = "") 
 plot(function(x) {df(x, df1=5, df2=10)}, xlim=c(0,3), add=T, lty=2) 
@@ -23,8 +23,8 @@ ggplot(subset(nv, Study == 3), aes(x = WordType, y = Measure)) +
   labs(title = "Study 3 from NounsVerbs", x = "Word Type", y = "Measure") +
   theme_bw()
 
-ggsave(filename = "ch7.figure2.png", width = 1200, height = 900, units = "px",
-       dpi = 200)
+ggsave(filename = "ch7.figure2.tiff", width = 1800, height = 1350, units = "px",
+       dpi = 300)
 
 # Figure 3
 library(ggplot2)
@@ -43,7 +43,7 @@ for(i in 1:50) {
   ci.lower[i] = means[i] - 1.96 * ses[i]
 }
 
-ci.test = data.frame(sample.mean = means, sample.se = se, 
+ci.test = data.frame(sample.mean = means, sample.se = ses, 
                      ci.upper = ci.upper, ci.lower = ci.lower, x = 1:50)
 
 means.avg = mean(means)
@@ -61,11 +61,11 @@ ggplot(data = ci.test, mapping = aes(x = x, y = sample.mean, color = includeMu))
   guides(color = guide_legend(title = "Include mu")) +
   theme_bw()
 
-ggsave(filename = "ch7.figure3.png", width = 1200, height = 900, units = "px",
-       dpi = 200)
+ggsave(filename = "ch7.figure3.tiff", width = 1800, height = 1350, units = "px",
+       dpi = 300)
 
 # Figure 4
-png(filename = "ch7.figure4.png", width = 1200, height = 900, units = "px", res = 200)
+tiff(filename = "ch7.figure4.tiff", width = 1800, height = 1350, units = "px", res = 300)
 
 error.bar = function(x, y, upper, lower = upper, length = 0.1,...) { 
   if(length(x) != length(y) | length(y) !=length(lower) | 
@@ -91,11 +91,11 @@ ggplot(data = sister.mean, mapping = aes(x = Speaker, y = VOT)) +
                               ymax = VOT+conf95), width = 0.2) +
   theme_bw()
 
-ggsave(filename = "ch7.figure5.png", width = 1200, height = 900, units = "px",
-       dpi = 200)
+ggsave(filename = "ch7.figure5.tiff", width = 1800, height = 1350, units = "px",
+       dpi = 300)
 
 # Figure 6
-png(filename = "ch7.figure6.png", width = 1200, height = 900, units = "px", res = 200)
+tiff(filename = "ch7.figure6.tiff", width = 1800, height = 1350, units = "px", res = 300)
 
 bg = read.delim("BoysGirls.txt")
 study1 = subset(bg, Study == 1)
@@ -126,11 +126,11 @@ ggplot(data = bg.df, mapping = aes(x = xLab, y = Diff)) +
   labs(x = NULL, y = "Difference") +
   theme_bw()
 
-ggsave(filename = "ch7.figure7.png", width = 1200, height = 900, units = "px",
-       dpi = 200)
+ggsave(filename = "ch7.figure7.tiff", width = 1800, height = 1350, units = "px",
+       dpi = 300)
 
 # Figure 8
-png(filename = "ch7.figure8.png", width = 1200, height = 900, units = "px", res = 200)
+tiff(filename = "ch7.figure8.tiff", width = 1800, height = 1350, units = "px", res = 300)
 
 nv = read.delim("NounsVerbs.txt")
 study3 = subset(nv, Study == 3)
@@ -140,7 +140,7 @@ conf95.lower = t.res3$conf.int[1]
 conf95.3 = (conf95.upper - conf95.lower) / 2
 nouns3 = subset(study3, WordType == "Noun")
 verbs3 = subset(study3, WordType == "Verb")
-Diff.mean = mean(abs(N - V))
+Diff.mean = mean(abs(nouns3$Measure - verbs3$Measure))
 nv.plot = barplot(Diff.mean, names.arg=c("Nouns vs. Verbs"), 
                   ylab = "Mean of Paired Difference ", ylim=c(0, 3.5))
 error.bar(nv.plot, Diff.mean, conf95.3)

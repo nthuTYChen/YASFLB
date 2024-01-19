@@ -24,7 +24,7 @@ ggplot(data = exp.avg, mapping = aes(x = Color, y = Learning, group = Color, lin
        y = "Learning Performance", caption = "Error bars = SE") +
   theme_bw()
 
-ggsave(filename = "ch9.figure1.png", height = 900, width = 1200, units = "px",
+ggsave(filename = "ch9.figure1.tiff", height = 1350, width = 1800, units = "px",
        dpi = 200)
 
 # Figure 2
@@ -61,14 +61,14 @@ ggplot(data = semphon, aes(x = SemRel, y = RT,
        linetype = "Phonological Level") + 
   theme_bw()
 
-ggsave(filename = "ch9.figure2.png", height = 900, width = 1800, units = "px",
+ggsave(filename = "ch9.figure2.tiff", height = 1350, width = 2700, units = "px",
        dpi = 200)
 
 # Figure 3
 exp2 = read.delim("ColoredRooms2.txt", header = T)
 colorgender.aov = aov(Learning ~ Gender * Color, data = exp2) 
 
-png(filename = "ch9.figure3.png", height = 900, width = 1200, units = "px",
+tiff(filename = "ch9.figure3.tiff", height = 1350, width = 1800, units = "px",
     res = 200)
 
 library(effects)			

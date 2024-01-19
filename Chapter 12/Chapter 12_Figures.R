@@ -1,7 +1,7 @@
 # Figure 1
 rd = read.delim("richdeletion.txt")
 
-png(filename = "ch12.figure1.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure1.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 options(scipen = 5)
@@ -12,7 +12,7 @@ dev.off()
 # Figure 2
 rd = read.delim("richdeletion.txt")
 
-png(filename = "ch12.figure2.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure2.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 options(scipen = 5)
@@ -26,7 +26,7 @@ dev.off()
 # Figure 3
 library(gtools)
 
-png(filename = "ch12.figure3.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure3.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 curve(logit(x), 0, 1)
@@ -37,7 +37,7 @@ dev.off()
 rd = read.delim("richdeletion.txt")
 rd.glm = glm(Deletion ~ Income, family = "binomial", data = rd)
 
-png(filename = "ch12.figure4.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure4.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 options(scipen = 5)		        
@@ -50,7 +50,7 @@ lines(x = curve.df$Income, y = curve.df$fitted)
 dev.off()
 
 # Figure 5
-png(filename = "ch12.figure5.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure5.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 bins = cut(rd$Income, 10) 			
@@ -73,7 +73,7 @@ logit.bin = function(vector) {
 mean.x = tapply(rd$Income, bins, mean) 
 logit.y = tapply(rd$Deletion, bins, logit.bin)	
 
-png(filename = "ch12.figure6.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure6.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 plot(mean.x, logit.y, ylab = "Deletion (log odds)", xlab = "Income")
@@ -87,7 +87,7 @@ library(effects)
 rd = read.delim("richdeletion.txt")
 rd.glm = glm(Deletion ~ Income, family = "binomial", data = rd)
 
-png(filename = "ch12.figure7.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure7.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 plot(allEffects(rd.glm))		
@@ -108,7 +108,7 @@ classifiers$RoundNum = ifelse(classifiers$Round == "Yes", 1, 0)
 train.net = neuralnet(tiao + gen + zhi ~ FlexibleNum + ThinNum + RoundNum, 
                       data = classifiers, hidden = 0, rep = 5)
 
-png(filename = "ch12.figure8.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure8.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 plot(train.net, rep = "best")
@@ -116,7 +116,7 @@ plot(train.net, rep = "best")
 dev.off()
 
 # Figure 9
-png(filename = "ch12.figure9.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure9.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 x = 1:10					                         	
@@ -130,7 +130,7 @@ dui.glm = glm(Count ~ NumSyl + Oddness, family = "poisson", data = dui)
 
 dui.pred = exp(predict(dui.glm, dui[1:2]))
 
-png(filename = "ch12.figure10.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure10.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 plot(Count ~ NumSyl, data = dui, xlab = "Number of Syllables", ylab = "Count", 
@@ -150,7 +150,7 @@ dui.poly.pois = glm(Count ~ I(NumSyl ^ 2) * NumSyl * Oddness,
 
 dui.pred = exp(predict(dui.poly.pois, dui[1:2]))
 
-png(filename = "ch12.figure11.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure11.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 plot(Count ~ NumSyl, data = dui, xlab = "Number of Syllables", ylab = "Count", 
@@ -167,6 +167,7 @@ dev.off()
 # Figure 12
 jabberwocky = read.table("Jabberwocky_OnlyWords.txt")
 jabberwocky = jabberwocky$V1        
+jabberwocky.tab = table(jabberwocky)
 jabberwocky.tabtab = table(jabberwocky.tab)   
 
 library(zipfR)   					                 
@@ -180,7 +181,7 @@ jabberwocky.zm = lnre(type = "zm", jabberwocky.spc)
 n.int = seq(1, 10000, length = 20)	
 jabberwocky.vgc = lnre.vgc(jabberwocky.zm, n.int)
 
-png(filename = "ch12.figure12.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure12.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 plot(jabberwocky.vgc)		           
@@ -190,7 +191,7 @@ dev.off()
 # Figure 13
 rtacc = read.delim("RTacc.txt")
 
-png(filename = "ch12.figure13.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure13.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 plot(Acc ~ RT, data = rtacc)    
@@ -198,7 +199,7 @@ plot(Acc ~ RT, data = rtacc)
 dev.off()
 
 # Figure 14
-png(filename = "ch12.figure14.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure14.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 scatter.smooth(rtacc$RT, rtacc$Acc)
@@ -206,7 +207,10 @@ scatter.smooth(rtacc$RT, rtacc$Acc)
 dev.off()
 
 # Figure 15
-png(filename = "ch12.figure15.png", width = 1200, height = 900, unit = "px",
+library(mgcv)
+rtacc.gam = gam(Acc ~ s(RT), data = rtacc)
+
+tiff(filename = "ch12.figure15.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 plot(rtacc.gam)	
@@ -214,14 +218,14 @@ plot(rtacc.gam)
 dev.off()
 
 # Figure 16
-png(filename = "ch12.figure16.png", width = 1200, height = 900, unit = "px",
+tiff(filename = "ch12.figure16.tiff", width = 1800, height = 1350, unit = "px",
     res = 200)
 
 plot(Acc ~ RT, data = rtacc)		  
 RTrange = range(rtacc$RT)		     
-rtacc.newX = seq(RTrange[1], RTrange[2], by = 1)
-rtacc.pred = predict(rtacc.gam, data.frame(RT = rtacc.newX))
-lines(rtacc.pred ~ rtacc.newX)		
+rtacc.newRT = seq(RTrange[1], RTrange[2], by = 1)
+rtacc.pred = predict(rtacc.gam, data.frame(RT = rtacc.newRT))
+lines(rtacc.pred ~ rtacc.newRT)		
 
 dev.off()
 
@@ -239,5 +243,5 @@ ggplot() + geom_point(data = rtacc, mapping = aes(x = RT, y = Acc),
   labs(title = "Generalized Additive Modeling", x = "RT", y = "Accuracy") +
   theme_bw()
 
-ggsave(filename = "ch12.figure17.png", width = 1200, height = 900, unit = "px",
+ggsave(filename = "ch12.figure17.tiff", width = 1800, height = 1350, unit = "px",
        dpi = 200)
