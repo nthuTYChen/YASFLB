@@ -10,14 +10,14 @@ fd.noX.lm = lm(DurX ~ LogFreq + AoA + Fam, data = fd)
 fd.noX.resid = resid(fd.noX.lm)	
 
 tiff(filename = "ch11.figure7a.tiff", height = 1350, width = 1800, unit = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 hist(fd.noX.resid)
 
 dev.off()
 
 tiff(filename = "ch11.figure7b.tiff", height = 1350, width = 1800, unit = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 qqnorm(fd.noX.resid)	
 qqline(fd.noX.resid)
@@ -29,14 +29,14 @@ fd.withX.lm = lm(DurX ~ LogFreq + AoA + Fam + FactorX, data = fd)
 fd.withX.resid = resid(fd.withX.lm)
 
 tiff(filename = "ch11.figure8a.tiff", height = 1350, width = 1800, unit = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 hist(fd.withX.resid)
 
 dev.off()
 
 tiff(filename = "ch11.figure8b.tiff", height = 1350, width = 1800, unit = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 qqnorm(fd.withX.resid)	
 qqline(fd.withX.resid)
@@ -53,7 +53,7 @@ y = fd.sub$Dur
 fd.int.pred = predict(fd.int)
 
 tiff(filename = "ch11.figure9.tiff", height = 1350, width = 1800, unit = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 plot(x, y, xlab = "", ylab = "Duration", 
      main = "An Intercept-only Model of freqdur.txt")
@@ -70,7 +70,7 @@ y = c(3, 2, 1, 6, 5, 4, 9, 8, 7)
 fake.simp.lm = lm(y ~ x1)
 
 tiff(filename = "ch11.figure10.tiff", height = 1350, width = 1800, unit = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 plot(x1, y)		  		                   
 lines(predict(fake.simp.lm), lwd = 2)  
@@ -81,7 +81,7 @@ dev.off()
 fake.int.lm = lm(y ~ x1 * x2)
 
 tiff(filename = "ch11.figure11.tiff", height = 1350, width = 1800, unit = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 plot(x1, y)		  		
 lines(predict(fake.simp.lm), lwd = 2)  
@@ -91,7 +91,7 @@ dev.off()
 
 # Figure 12
 tiff(filename = "ch11.figure12.tiff", height = 1350, width = 1800, unit = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 plot(x2, y)
 
@@ -127,7 +127,7 @@ ggplot() +
   theme_bw()
 
 ggsave(filename = "ch11.figure13a.tiff", width = 1800, height = 1350, unit = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 13b
 library(ggplot2)
@@ -151,11 +151,11 @@ ggplot() +
   theme_bw()
 
 ggsave(filename = "ch11.figure13b.tiff", width = 1800, height = 1350, unit = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 14
 tiff(filename = "ch11.figure14.tiff", height = 1350, width = 1800, unit = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 plot(c(1, 2), c(2, 4), xlim = c(0, 5), ylim = c(0, 5))
 arrows(0, 0, 1, 2) 

@@ -12,7 +12,7 @@ ggplot(data = ddat,
   theme_bw()
 
 ggsave(filename = "ch10.figure1.tiff", height = 1350, width = 1800, units = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 2
 ggplot(ddat, aes(y=RT, x=Education, fill=Freq, group=Freq)) +
@@ -23,7 +23,7 @@ ggplot(ddat, aes(y=RT, x=Education, fill=Freq, group=Freq)) +
   theme_bw()
 
 ggsave(filename = "ch10.figure2.tiff", height = 1350, width = 1800, units = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 3
 ggplot(data = ddat, 
@@ -36,7 +36,7 @@ ggplot(data = ddat,
   theme_bw()
 
 ggsave(filename = "ch10.figure3.tiff", height = 1350, width = 1800, units = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 4
 library(lsmeans)
@@ -63,4 +63,4 @@ ggplot(data = ddat.lsmeans,
   theme_bw()
 
 ggsave(filename = "ch10.figure4.tiff", height = 1350, width = 1800, units = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)

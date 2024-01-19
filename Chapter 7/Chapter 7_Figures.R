@@ -1,6 +1,6 @@
 # Figure 1
 
-tiff(filename = "ch7.figure1.tiff", width = 1800, height = 1350, units = "px", res = 300)
+tiff(filename = "ch7.figure1.tiff", width = 1800, height = 1350, units = "px", compression = c("lzw"), res = 300)
 
 plot(function(x) {df(x, df1=5, df2=5)}, xlim=c(0,3), ylim=c(0,1), ylab = "", xlab = "") 
 plot(function(x) {df(x, df1=5, df2=10)}, xlim=c(0,3), add=T, lty=2) 
@@ -24,7 +24,7 @@ ggplot(subset(nv, Study == 3), aes(x = WordType, y = Measure)) +
   theme_bw()
 
 ggsave(filename = "ch7.figure2.tiff", width = 1800, height = 1350, units = "px",
-       dpi = 300)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 3
 library(ggplot2)
@@ -62,10 +62,10 @@ ggplot(data = ci.test, mapping = aes(x = x, y = sample.mean, color = includeMu))
   theme_bw()
 
 ggsave(filename = "ch7.figure3.tiff", width = 1800, height = 1350, units = "px",
-       dpi = 300)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 4
-tiff(filename = "ch7.figure4.tiff", width = 1800, height = 1350, units = "px", res = 300)
+tiff(filename = "ch7.figure4.tiff", width = 1800, height = 1350, units = "px", compression = c("lzw"), res = 300)
 
 error.bar = function(x, y, upper, lower = upper, length = 0.1,...) { 
   if(length(x) != length(y) | length(y) !=length(lower) | 
@@ -92,10 +92,10 @@ ggplot(data = sister.mean, mapping = aes(x = Speaker, y = VOT)) +
   theme_bw()
 
 ggsave(filename = "ch7.figure5.tiff", width = 1800, height = 1350, units = "px",
-       dpi = 300)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 6
-tiff(filename = "ch7.figure6.tiff", width = 1800, height = 1350, units = "px", res = 300)
+tiff(filename = "ch7.figure6.tiff", width = 1800, height = 1350, units = "px", compression = c("lzw"), res = 300)
 
 bg = read.delim("BoysGirls.txt")
 study1 = subset(bg, Study == 1)
@@ -127,10 +127,11 @@ ggplot(data = bg.df, mapping = aes(x = xLab, y = Diff)) +
   theme_bw()
 
 ggsave(filename = "ch7.figure7.tiff", width = 1800, height = 1350, units = "px",
-       dpi = 300)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 8
-tiff(filename = "ch7.figure8.tiff", width = 1800, height = 1350, units = "px", res = 300)
+tiff(filename = "ch7.figure8.tiff", width = 1800, height = 1350, units = "px", 
+     compression = c("lzw"), res = 300)
 
 nv = read.delim("NounsVerbs.txt")
 study3 = subset(nv, Study == 3)

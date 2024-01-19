@@ -25,7 +25,7 @@ ggplot(data = exp.avg, mapping = aes(x = Color, y = Learning, group = Color, lin
   theme_bw()
 
 ggsave(filename = "ch9.figure1.tiff", height = 1350, width = 1800, units = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 2
 library(ggplot2)
@@ -62,14 +62,14 @@ ggplot(data = semphon, aes(x = SemRel, y = RT,
   theme_bw()
 
 ggsave(filename = "ch9.figure2.tiff", height = 1350, width = 2700, units = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 3
 exp2 = read.delim("ColoredRooms2.txt", header = T)
 colorgender.aov = aov(Learning ~ Gender * Color, data = exp2) 
 
 tiff(filename = "ch9.figure3.tiff", height = 1350, width = 1800, units = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 library(effects)			
 colorgender.ef = allEffects(colorgender.aov)	

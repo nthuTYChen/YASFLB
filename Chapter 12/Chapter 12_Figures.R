@@ -2,7 +2,7 @@
 rd = read.delim("richdeletion.txt")
 
 tiff(filename = "ch12.figure1.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 options(scipen = 5)
 plot(Deletion ~ Income, data = rd)
@@ -13,7 +13,7 @@ dev.off()
 rd = read.delim("richdeletion.txt")
 
 tiff(filename = "ch12.figure2.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 options(scipen = 5)
 plot(Deletion ~ Income, data = rd)
@@ -27,7 +27,7 @@ dev.off()
 library(gtools)
 
 tiff(filename = "ch12.figure3.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 curve(logit(x), 0, 1)
 
@@ -38,7 +38,7 @@ rd = read.delim("richdeletion.txt")
 rd.glm = glm(Deletion ~ Income, family = "binomial", data = rd)
 
 tiff(filename = "ch12.figure4.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 options(scipen = 5)		        
 plot(rd$Deletion ~ rd$Income)	
@@ -51,7 +51,7 @@ dev.off()
 
 # Figure 5
 tiff(filename = "ch12.figure5.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 bins = cut(rd$Income, 10) 			
 mean.x = tapply(rd$Income, bins, mean) 	
@@ -74,7 +74,7 @@ mean.x = tapply(rd$Income, bins, mean)
 logit.y = tapply(rd$Deletion, bins, logit.bin)	
 
 tiff(filename = "ch12.figure6.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 plot(mean.x, logit.y, ylab = "Deletion (log odds)", xlab = "Income")
 abline(lm(logit.y ~ mean.x)) 			     
@@ -88,7 +88,7 @@ rd = read.delim("richdeletion.txt")
 rd.glm = glm(Deletion ~ Income, family = "binomial", data = rd)
 
 tiff(filename = "ch12.figure7.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 plot(allEffects(rd.glm))		
 
@@ -109,7 +109,7 @@ train.net = neuralnet(tiao + gen + zhi ~ FlexibleNum + ThinNum + RoundNum,
                       data = classifiers, hidden = 0, rep = 5)
 
 tiff(filename = "ch12.figure8.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 plot(train.net, rep = "best")
 
@@ -117,7 +117,7 @@ dev.off()
 
 # Figure 9
 tiff(filename = "ch12.figure9.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 x = 1:10					                         	
 plot(x, dpois(x, lambda = 3))	
@@ -131,7 +131,7 @@ dui.glm = glm(Count ~ NumSyl + Oddness, family = "poisson", data = dui)
 dui.pred = exp(predict(dui.glm, dui[1:2]))
 
 tiff(filename = "ch12.figure10.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 plot(Count ~ NumSyl, data = dui, xlab = "Number of Syllables", ylab = "Count", 
      pch = 0, cex = 2)
@@ -151,7 +151,7 @@ dui.poly.pois = glm(Count ~ I(NumSyl ^ 2) * NumSyl * Oddness,
 dui.pred = exp(predict(dui.poly.pois, dui[1:2]))
 
 tiff(filename = "ch12.figure11.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 plot(Count ~ NumSyl, data = dui, xlab = "Number of Syllables", ylab = "Count", 
      pch = 0, cex = 2)
@@ -182,7 +182,7 @@ n.int = seq(1, 10000, length = 20)
 jabberwocky.vgc = lnre.vgc(jabberwocky.zm, n.int)
 
 tiff(filename = "ch12.figure12.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 plot(jabberwocky.vgc)		           
 
@@ -192,7 +192,7 @@ dev.off()
 rtacc = read.delim("RTacc.txt")
 
 tiff(filename = "ch12.figure13.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 plot(Acc ~ RT, data = rtacc)    
 
@@ -200,7 +200,7 @@ dev.off()
 
 # Figure 14
 tiff(filename = "ch12.figure14.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 scatter.smooth(rtacc$RT, rtacc$Acc)
 
@@ -211,7 +211,7 @@ library(mgcv)
 rtacc.gam = gam(Acc ~ s(RT), data = rtacc)
 
 tiff(filename = "ch12.figure15.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 plot(rtacc.gam)	
 
@@ -219,7 +219,7 @@ dev.off()
 
 # Figure 16
 tiff(filename = "ch12.figure16.tiff", width = 1800, height = 1350, unit = "px",
-    res = 200)
+     compression = c("lzw"), res = 300)
 
 plot(Acc ~ RT, data = rtacc)		  
 RTrange = range(rtacc$RT)		     
@@ -244,4 +244,4 @@ ggplot() + geom_point(data = rtacc, mapping = aes(x = RT, y = Acc),
   theme_bw()
 
 ggsave(filename = "ch12.figure17.tiff", width = 1800, height = 1350, unit = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)

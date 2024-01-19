@@ -16,7 +16,7 @@ col.total = apply(VCM.marg, 2, sum)
 VCM.marg = rbind(VCM.marg, ColTotal = col.total)
 
 tiff(filename = "ch8.figure1.tiff", height = 1350, width = 1800, units = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 barplot(VowelCombos.mat,  		               		  
         beside = T,	  				                    
@@ -42,11 +42,11 @@ ggplot(data = VMC.df, mapping = aes(x = Vowel2, y = Freq,
   theme_bw()
 
 ggsave(filename = "ch8.figure2.tiff", height = 1350, width = 1800, units = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 3
 tiff(filename = "ch8.figure3.tiff", height = 1350, width = 1800, units = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 mosaicplot(VowelCombos.mat, cex = 1, main = "VowelCombos") 
 
@@ -54,7 +54,7 @@ dev.off()
 
 # Figure 4
 tiff(filename = "ch8.figure4.tiff", height = 1350, width = 1800, units = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 install.packages("vcd", dependencies = T, ask = F)	
 library(vcd)				
@@ -66,7 +66,7 @@ dev.off()
 
 # Figure 5
 tiff(filename = "ch8.figure5.tiff", height = 1350, width = 1800, units = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 VowelCombos.exp = VowelCombos.mat 	
 VowelCombos.exp[,] = matrix(c(25.84, 4.18, 7.98,
@@ -79,7 +79,7 @@ dev.off()
 
 # Figure 6
 tiff(filename = "ch8.figure6.tiff", height = 1350, width = 1800, units = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 socdata = matrix(c(57, 112, 190, 11), ncol = 2) 
 mosaicplot(socdata)
@@ -103,11 +103,11 @@ ggplot(data = fakeLangDist, mapping = aes(x = Classifier, y = Perc,
   theme_bw()
 
 ggsave(filename = "ch8.figure7.tiff", height = 1350, width = 1800, units = "px",
-       dpi = 200)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 8
 tiff(filename = "ch8.figure8.tiff", height = 1350, width = 1800, units = "px",
-    res = 200)
+    compression = c("lzw"), res = 300)
 
 chisq.value = seq(from = 0, to = 20, by = 0.01)
 chisq.3.den = dchisq(x = chisq.value, df = 3)

@@ -4,7 +4,7 @@ attach(fakecor)
 # Figure 1
 
 tiff(file = "ch6.figure1.tiff", height = 1350, width = 2700, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 par(mfrow = c(1, 2))		
 plot(AX, AY, main = "A")		
@@ -17,7 +17,7 @@ dev.off()
 fd = read.delim("freqdur.txt")
 
 tiff(file = "ch6.figure2.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 plot(fd[,2:5])
 
@@ -27,7 +27,7 @@ dev.off()
 fd = read.delim("freqdur.txt")
 
 tiff(file = "ch6.figure3.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 qqnorm(fd$Freq)
 qqline(fd$Freq)
@@ -36,7 +36,7 @@ dev.off()
 
 # Figure 4
 tiff(file = "ch6.figure4.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 fd$LogFreq = log(fd$Freq)
 qqnorm(fd$LogFreq)
@@ -46,7 +46,7 @@ dev.off()
 
 # Figure 5
 tiff(file = "ch6.figure5.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 plot(fd$LogFreq, fd$Dur, xlab = "Log Frequency", ylab = "Duration (ms)")
 
@@ -56,7 +56,7 @@ dev.off()
 fakecor = read.delim("scatterplots.txt")	# 將資料讀取為fakecor變數
 
 tiff(file = "ch6.figure6.tiff", height = 1350, width = 2700, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 par(mfrow = c(1, 3))
 
@@ -75,7 +75,7 @@ dev.off()
 # Figure 7
 
 tiff(file = "ch6.figure7.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 plotCor(fakecor$IX, fakecor$IY, "I;")
 
@@ -84,7 +84,7 @@ dev.off()
 # Figure 8
 
 tiff(file = "ch6.figure8.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 plotCor(fakecor$EX, fakecor$EY, "E;")
 
@@ -92,7 +92,7 @@ dev.off()
 
 # Figure 9
 tiff(file = "ch6.figure9.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 plot(AX, AY)
 regress.line = lm(AY ~ AX)
@@ -109,11 +109,11 @@ ggplot(fakecor, aes(x = AX, y = AY)) +
   theme_bw()	
 
 ggsave(filename = "ch6.figure10.tiff", height = 1350, width = 1800, units = "px",
-       dpi = 300)
+       compression = c("lzw"), dpi = 300)
 
 # Figure 11
 tiff(file = "ch6.figure11.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 plot(fd$LogFreq, fd$Dur, xlab = "Log Frequency", ylab = "Duration(ms)")
 abline(lm(Dur ~ LogFreq, data = fd))
@@ -122,7 +122,7 @@ dev.off()
 
 # Figure 12
 tiff(file = "ch6.figure12.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 plot(AX, AY)	
 abline(lm(AY ~ AX), lwd = 2, lty = 1)	
@@ -136,7 +136,7 @@ regdat = read.delim("regex.txt")
 regdat.lm = lm(y ~ x, data = regdat)
 
 tiff(file = "ch6.figure13.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 plot(regdat$x, regdat$y, xlab = "x", ylab = "y")
 abline(regdat.lm)
@@ -152,7 +152,7 @@ yx.lm = lm(y ~ x)
 xy.lm = lm(x ~ y)		
 
 tiff(file = "ch6.figure14.tiff", height = 1350, width = 2700, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 par(mfrow=c(1, 2))
 
@@ -169,7 +169,7 @@ dev.off()
 
 # Figure 15
 tiff(file = "ch6.figure15.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 fakecor = read.delim("scatterplots.txt")	  
 attach(fakecor)					                    
@@ -193,7 +193,7 @@ age = runif(100) - 0.5
 acc = age ^ 2 + rnorm(100) / 10
 
 tiff(file = "ch6.figure16.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 plot(age, acc)			    
 acc = acc[order(age)]		
@@ -212,7 +212,7 @@ library(languageR)
 fd = read.delim("freqdur.txt")
 
 tiff(file = "ch6.figure17.tiff", height = 1350, width = 1800, units = "px",
-    res = 300)
+    compression = c("lzw"), res = 300)
 
 pairscor.fnc(fd[,2:5 ])	
 
