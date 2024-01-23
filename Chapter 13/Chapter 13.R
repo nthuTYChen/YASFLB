@@ -300,3 +300,158 @@ sdat.lmer = lmer(Sploink ~ Age + (Age | Child), data = sdat)
 # 只含隨機截距模型
 sdat.lmer.int = lmer(Sploink ~ Age + (1 | Child), data = sdat)
 anova(sdat.lmer.int, sdat.lmer)	# 似然比檢定
+
+# 以哆啦妹的實驗示範是否需要納入受測項目隨機效應
+ddat = read.delim("doramiR.txt", stringsAsFactor = T) # 假設需要重新讀取資料
+# 最大化模型
+ddat.lmer.max = lmer(RT ~ Education * SynCat * Freq + 
+                       (SynCat * Freq | Participant) + (Education | Item), data = ddat)
+# 排除受測項目隨機效應之模型
+ddat.lmer.part = lmer(RT ~ Education * SynCat * Freq +
+                          (SynCat * Freq | Participant), data = ddat) 
+
+anova(ddat.lmer.part, ddat.lmer.max)	# 似然比檢定
+
+# 示範連續預測變量尺度差距過大為混合效應模型帶來的問題
+set.seed(3)			  # 每個隨機抽樣步驟前都指定亂數種子，才能得到相同結果 
+y = rnorm(100)		# 適合進行線性迴歸分析的連續尺度因變量 
+set.seed(4)
+x1 = runif(100)		# 介於0與1之間的預測/自變量
+set.seed(5)
+x2 = runif(100) * 10000	# 介於0與10000之間的預測/自變量
+g = rep(1:10, 10) # 假設有某個數量為10的測量單位，每個單位提供10筆數據
+# 準備秀逗的最大化模型
+yxgmodel.lmer1 = lmer(y ~ x1 * x2 + (x1 * x2 | g))		
+
+# 將預測變量轉換為z分數後再次建立最大化模型
+x1.z = scale(x1)
+x2.z = scale(x2) 
+yxgmodel.lmer2 = lmer(y ~ x1.z * x2.z + (x1.z * x2.z | g))
+
+# 看看R的說明文件給予什麼解決奇點問題的建議
+?isSingular
+
+# 以最大化模型進行不同最佳化演算法的模擬
+install.packages(c("optimx", "dfoptim")) 
+library(afex)
+allFit(yxgmodel.lmer2)	
+
+# 以看似沒有奇點問題的兩個演算法建立混合效應模型
+yxgmodel.lmer3 = lmer(y ~ x1.z * x2.z + (x1.z * x2.z|g), 
+                      control = lmerControl(optimizer = "nmkbw"))
+# 要使用nloptwrap的NLOPT_LN_NELDERMEAD演算法必須在lmerControl()中另外設定
+# optCtrl參數
+yxgmodel.lmer3 = lmer(y ~ x1.z * x2.z + (x1.z * x2.z|g), 
+            control = lmerControl(optimizer = "nloptwrap", 
+                          optCtrl = list(algorithm = "NLOPT_LN_NELDERMEAD")))
+
+# 增加運算循環次數為200000次，以nmkbw演算法建立混合效應模型
+yxgmodel.lmer3 = lmer(y ~ x1.z * x2.z + (x1.z * x2.z|g), 
+ 			control = lmerControl(optimizer = "nmkbw", optCtrl = list(maxfeval = 200000)))
+
+# 以貝氏統計進行混合效應模型
+library(blme) 
+yxgmodel.lmer4 = blmer(y ~ x1.z * x2.z + (x1.z * x2.z|g))
+
+# 四之一節
+
+# 以句法接受度判斷實驗進行混合效應邏輯迴歸的示範
+# 不將物件取名為ddat的原因是在這章裡這個名稱已經被哆啦妹搶走了，所以要避免混淆
+demdat = read.delim("demo.txt")
+
+# 第十二章三之一節的重複測量邏輯迴歸
+int.coef = numeric(7) # 新增的部份：儲存每位受試者的截距
+CNP.coef = numeric(7) 
+Top.coef = numeric(7) 
+CxT.coef = numeric(7) 
+for (i in 1:7) { 
+  demdat.i = subset(demdat, demdat$Speaker == i) 
+  glm.i = glm(Judgment ~ ComplexNP * Topic, family = "binomial", data = demdat.i) 
+  coefs = coef(glm.i)
+  int.coef[i] = coefs["(Intercept)"]  # 新增的部份：取得截距係數
+  CNP.coef[i] = coefs["ComplexNP"]
+  Top.coef[i] = coefs["Topic"]
+  CxT.coef[i] = coefs["ComplexNP:Topic"]
+} 
+t.test(int.coef) # 新增的部份：截距的單一樣本t檢定
+t.test(CNP.coef)
+t.test(Top.coef)
+t.test(CxT.coef) 
+# 新增的部份：取得每組係數的標準誤
+as.numeric(mean(int.coef)/t.test(int.coef)$statistic) 
+as.numeric(mean(CNP.coef)/t.test(CNP.coef)$statistic) 
+as.numeric(mean(Top.coef)/t.test(Top.coef)$statistic) 
+as.numeric(mean(CxT.coef)/t.test(CxT.coef)$statistic)
+
+library(lme4)	# 假設你從零開始的話就先載入套件
+# 按照Matuschek et al. (2017)的建議從最大化模型開始
+demdat.glmer = glmer(Judgment ~ ComplexNP * Topic +
+  	(ComplexNP * Topic | Speaker) + (1 | Item), family = "binomial", 
+ 	data = demdat)
+
+# 按照Matuschek et al. (2017)的建議建立無隨機相關性模型
+demdat.glmer.nocorr = glmer(Judgment ~ ComplexNP * Topic + 
+ 	(ComplexNP * Topic || Speaker) + (1 | Item), family = "binomial", 
+ 	data = demdat)
+
+# 按照Matuschek et al.的建議，維持無隨機相關性模型，但排除自變量交互作用的
+# 隨機效應簡化模型
+demdat.glmer.nocorr.noCxT = glmer(Judgment ~ ComplexNP * Topic + 
+ 	(ComplexNP + Topic || Speaker) + (1 | Item), family = "binomial", 
+ 	data = demdat)
+
+# 直接跳到最簡化只包含隨機截距的模型
+# 注意這裡沒有隨機斜率，所以也不需要使用「||」
+demdat.glmer.onlyrandint = glmer(Judgment ~ ComplexNP * Topic + 
+ 	(1 | Speaker) + (1 | Item), family = "binomial", data = demdat)
+summary(demdat.glmer.onlyrandint)
+
+# 進行模型比較，看看缺少受測項目隨機效應是否造成較差的模型配適度
+demdat.glmer.onlyrandint.part = glmer(Judgment ~ ComplexNP * Topic + 
+                                        (1 | Speaker), family = "binomial", data = demdat)
+# test = "Chisq"在這裡不是必要的，因為glmer()建立的模型比較聰明知道要用什麼測試法
+anova(demdat.glmer.onlyrandint.part, demdat.glmer.onlyrandint)
+
+summary(demdat.glmer.onlyrandint.part)
+
+# 四之二節
+# 以afex的mixed()函數建立混合效應模型，避免採用渥得檢定計算p值
+# 假設已經載入lme4的話就先卸載，讓afex載入lme4
+detach("package:lme4", unload = TRUE) 
+library(afex)
+# 在mixed()函數中設定method參數為LRT，使用似然比檢定
+demdat.mixed.onlyrandint.part.LRT = mixed(Judgment ~ ComplexNP * Topic + 
+    (1 | Speaker), method = "LRT", family = "binomial", data = demdat) 
+demdat.mixed.onlyrandint.part.LRT
+
+# 練習五
+cor(demdat$Judgment, predict(demdat.glmer.onlyrandint.part)) ^ 2
+# [1] 0.6828915
+
+# 以只含受試者隨機截距的模型進行交叉驗證
+N = nrow(demdat)            # 取得樣本數，方便後續進行比例分配
+size.n = round(0.85 * N, 0) # 計算N x 0.85後小數點四捨五入後的數量 = 119
+prop.correct = numeric(100) # 儲存100筆預測成功比例的容器
+set.seed(1)                 # 指定亂數種子，讓你也進行相同的抽樣
+for (i in 1:100) {          # 進行100次模型重建
+  S.i = sample(1:N, size.n) # 從1至N的連續數字抽樣size.n(119)筆的數字
+  # 以S.i數值做為列數編號，並依此從demdat取出只有這些列數的子集合做為重建模型資料
+  demdat.train.i = demdat[S.i,]
+  # 利用setdiff()取得1:N中不屬於S.i的列數編號，也就是剩下15%用於測試的資料列
+  test.rows = setdiff(1:N, S.i)
+  # 從demdat中取得屬於測試資料列的子集合
+  demdat.test.i = demdat[test.rows,] 
+  # 以訓練資料重建模型
+  demdat.i.glmer = glmer(Judgment ~ ComplexNP * Topic + (1 | Speaker), 
+                         family = "binomial", data = demdat.train.i)
+  # 以測試資料從重建模型中取得估計值
+  predict.i = predict(demdat.i.glmer, demdat.test.i, type = "response")
+  # 估計值>0 = 1，否則 = 0
+  predict.i = ifelse(predict.i > 0, 1, 0)
+  # 計算估計值與實際資料一致的總數
+  hits.i = sum(predict.i == demdat.test.i$Judgment)
+  # 計算正確預測的比例
+  prop.correct[i] = hits.i / nrow(demdat.test.i)
+} 
+mean(prop.correct)           # 預測正確比例平均數
+sd(prop.correct) 
