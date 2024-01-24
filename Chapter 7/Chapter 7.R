@@ -381,6 +381,8 @@ conf95.lower = t.res3$conf.int[1]
 conf95.3 = (conf95.upper - conf95.lower) / 2
 nouns3 = subset(study3, WordType == "Noun")
 verbs3 = subset(study3, WordType == "Verb")
+N = nouns3$Measure 
+V = verbs3$Measure
 # 計算平均成對差異
 Diff.mean = mean(abs(N - V))
 # 繪製圖表並命名
@@ -410,11 +412,10 @@ wilcox.test (Measure ~ WordType, data = study3, paired = T)  # 用X~Y語法
 t.sig = 0 			# 等等會累加t檢定p值小於.05的次數 
 u.sig = 0 			# 等等會累加U檢定p值小於.05的次數 
 conflict = 0 		# 等等會填入顯著性不同的次數 
+set.seed(1)     # 指定亂數種子
 for (i in 1:10000) { 
-  set.seed(i)           # 指定sample1抽樣的隨機種子
   # 從均勻分佈中抽樣20筆資料
   sample1 = runif(20) 
-  set.seed(i * 10)      # 指定samepl2抽樣的隨機種子
   sample2 = runif(20) 
   # 進行t檢定與U檢定取得p值
   t.p = t.test(sample1, sample2, var.equal = T)$p.value 
@@ -433,20 +434,19 @@ for (i in 1:10000) {
     conflict = conflict + 1   # 累積兩個檢定顯著結果不同的數目
   }  
 } 
-t.sig / 10000 	# 0.0509
-u.sig / 10000 	# 0.0498
-conflict / 10000 	#  0.0131 
+t.sig / 10000 	# 0.0522
+u.sig / 10000 	# 0.0401
+conflict / 10000 	#  0.0129
 
 # 練習七
 # 改以極度偏態進行模擬
 t.sig = 0 			# 等等會累加t檢定p值小於.05的次數 
 u.sig = 0 			# 等等會累加U檢定p值小於.05的次數 
 conflict = 0 		# 等等會填入顯著性不同的次數 
+set.seed(1)
 for (i in 1:10000) { 
-  set.seed(i)           # 指定sample1抽樣的隨機種子
   # 從常態分佈中抽樣20筆資料並轉換為指數
   sample1 = exp(rnorm(20))
-  set.seed(i * 10)      # 指定samepl2抽樣的隨機種子
   sample2 = exp(rnorm(20))
   # 進行t檢定與U檢定取得p值
   t.p = t.test(sample1, sample2, var.equal = T)$p.value 
@@ -465,22 +465,21 @@ for (i in 1:10000) {
     conflict = conflict + 1   # 累積兩個檢定顯著結果不同的數目
   }  
 } 
-t.sig / 10000 	# 0.0383
-u.sig / 10000 	# 0.0505
-conflict / 10000 	#  0.042
+t.sig / 10000 	# 0.039
+u.sig / 10000 	# 0.0495
+conflict / 10000 	#  0.0393
 # 從模擬結果可以發現，t檢定在樣本極度偏態且樣本偏小(n = 20)的情況下，更不容易
-# 檢測到有顯著差異的樣本(3.83%)，而U檢定的結果則是更接近預期的5%機率(5.05%)。
-# 兩種檢定相反結果的數量也增加了(4.2%)
+# 檢測到有顯著差異的樣本(3.9%)，而U檢定的結果則是更接近預期的5%機率(4.95%)。
+# 兩種檢定相反結果的數量也增加了(3.9%)
 
 # 再次進行模擬，樣本數增加至100
 t.sig = 0 			
 u.sig = 0 			
 conflict = 0 		
+set.seed(1)
 for (i in 1:10000) { 
-  set.seed(i)           
   # 從常態分佈中抽樣100筆資料並轉換為指數
   sample1 = exp(rnorm(100))
-  set.seed(i * 10)      
   sample2 = exp(rnorm(100))
   t.p = t.test(sample1, sample2, var.equal = T)$p.value 
   u.p = wilcox.test(sample1, sample2)$p.value 
@@ -497,10 +496,10 @@ for (i in 1:10000) {
     conflict = conflict + 1   
   }  
 } 
-t.sig / 10000 	# 0.0473
-u.sig / 10000 	# 0.0514
-conflict / 10000 	#  0.0569
+t.sig / 10000 	# 0.0438
+u.sig / 10000 	# 0.0475
+conflict / 10000 	#  0.0563
 
-# 樣本數增加5倍的情況下，t檢定與U檢定的顯著結果機率都非常接近理論值了，分別
-# 只差距0.27%與0.14%。這次的模擬更說明當樣本數足夠時，t檢定在樣本分佈違反
+# 樣本數增加5倍的情況下，t檢定與U檢定的顯著結果機率都更接近理論值了，分別
+# 只差距0.62%與0.25%。這次的模擬更說明當樣本數足夠時，t檢定在樣本分佈違反
 # 常態分佈的情況下，仍然擁有接近非母數檢定的效力唷！

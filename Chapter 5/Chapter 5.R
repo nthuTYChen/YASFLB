@@ -126,15 +126,14 @@ sum(dist.samp.means <= samp.mean) / length(dist.samp.means)
 # 模擬1,000次上述的抽樣計算過程
 # 創建一個有1,000個數字的向量做為儲存的容器
 rand.samp.means = numeric(1000) 	 
+set.seed(1) # 指定亂數種子
 for (i in 1:1000) { 
-  # 隨著迴圈進行在每次隨機運算前指定不同的亂數種子確保得到一樣的隨機運算
-	set.seed(i)		
   # 隨意取出五個樣本子集合的計算平均數並存入rand.samp.means
 	rand.samp.means[i] = mean(sample(pop, 5)) 
 } 
 # 子集合平均數小於或等於(<=) 樣本平均數的數量，除以所有可能子集合數(1,000)
 sum(rand.samp.means <= samp.mean) / length(rand.samp.means)
-#[1] 0.517
+#[1] 0.484
 
 # 把樣本平均分佈當成常態分佈
 # 常態分佈的平均值
@@ -168,13 +167,12 @@ big.samp = c(rep(0, 30), rep(1, 20))
 big.rand.samp.means = numeric(100000) 
 # 注意，這次模擬資料太多，無法用combn()函數產生子集合，所以改以迴圈採樣
 # 速度也會有點慢
+set.seed(1) # 指定亂數種子
 for (i in 1:100000) { 
-  # 每次迴圈依照i的數值進行指定不同的亂數種子
-  set.seed(i)
   # 每次迴圈從母體中採樣50筆資料成為子集合，計算平均數後存入儲存容器
   big.rand.samp.means[i] = mean(sample(big.pop, 50)) 
 } 
-# 我們得出母體標準差：0.07034604
+# 我們得出母體標準差：0.07028086
 sd(big.rand.samp.means) 
 # 中央極限定理的估算樣本標準誤：0.06998542，非常接近樣本標準差了！ 
 sd(big.samp)/sqrt(50) 
@@ -207,9 +205,9 @@ segments(37:60, rep(0, 23), 37:60, dbinom(37:60, 60, 0.5))
 population = c(rep("A", 37000), rep("B", 23000)) 
 # 等等會把計算有顯著的單尾二項檢定數目
 sig.count = 0 		
+set.seed(1) 	# 設定亂數種子
 # 進行10,000次抽樣	 
 for (i in 1:10000) { 	
-	set.seed(i)					# 設定亂數種子
 	our.sample = sample(population,60) 	# 從母體採集60個樣本
 	a.count = sum(our.sample == "A")   	# 60個樣本中A的數目
 	pval = pbinom(min(a.count, 60-a.count), 60, 0.5)  # 單尾檢定
@@ -219,7 +217,7 @@ for (i in 1:10000) {
 } 
 # 從母體採集的樣本子集合中得到A數目與母體顯著不同的數量
 sig.count/10000 
-#[1] 0.5556
+#[1] 0.5619
 
 # 五之一節
 # 練習二

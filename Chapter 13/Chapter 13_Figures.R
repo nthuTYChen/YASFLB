@@ -21,8 +21,8 @@ ggsave(filename = "ch13.figure2.tiff", height = 1350, width = 2700, units = "px"
 g = rep(1:10, 10)
 lm.coefs = numeric(20) 
 lme.coefs = numeric(20) 
+set.seed(1)
 for (i in 1:20) { 
-  set.seed(i * 10)
   dat = data.frame(y = rnorm(100), g, x = runif(100)) 
   lm.i = lm(y ~ x, data = dat)
   coefs.lm = coef(lm.i)

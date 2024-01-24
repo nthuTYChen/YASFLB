@@ -93,7 +93,7 @@ I.r = sum(IX.z * IY.z) / (length(IX.z) - 1)
 I.r
 # [1] 0.896903362335511
 
-my.test = cor.test(BX, BY)	# 將相關性測試結果儲存至my.test物件
+my.test = cor.test(fakecor$BX, fakecor$BY)	# 將相關性測試結果儲存至my.test物件
 my.test$estimate			# 取得相關係數
 #cor 
 #-0.9716553
@@ -147,9 +147,9 @@ y = c(x[length(x)], x[1:length(x) - 1])
 cor.test(x,y)
 
 # 三之一節
-plot(AX, AY)			# 使用scatterplots.txt裡的A組資料製作分佈圖
-regress.line = lm(AY ~  AX)	# 產生y = a + bx的線性模型
-abline(regress.line)		# 依線性模型方程式產生理想的迴歸線加到分佈圖上
+plot(fakecor$AX, fakecor$AY)			# 使用scatterplots.txt裡的A組資料製作分佈圖
+regress.line = lm(AY ~ AX, data = fakecor)	# 產生y = a + bx的線性模型
+abline(regress.line)		          # 依線性模型方程式產生理想的迴歸線加到分佈圖上
 
 library(ggplot2)
 # 利用ggplot2產生相同的散佈圖
@@ -193,10 +193,10 @@ predict(lm(Dur ~ LogFreq, data = fd), newfd)
 newfd.2 = data.frame(LogFreq = 8:10) 
 
 # 比較「完美」的模型與單純的線性模型
-plot(AX, AY)		# 產生「scatterplots.txt」中A組資料的相關分佈圖
+plot(fakecor$AX, fakecor$AY)		# 產生「scatterplots.txt」中A組資料的相關分佈圖
 # 加上線型模型的迴歸線，調整寬度與樣式
-abline(lm(AY ~ AX), lwd = 2, lty = 1)	
-lines(AX, AY, lty = 2)	# 加上完美符合每個資料點的曲折線
+abline(lm(AY ~ AX, data = fakecor), lwd = 2, lty = 1)	
+lines(fakecor$AX, fakecor$AY, lty = 2)	# 加上完美符合每個資料點的曲折線
 
 # 再次以上面的資料框中的X變量皆由線性迴歸模型預測Y變量(時長)的值
 predict(lm(Dur ~ LogFreq, data = fd), newfd.2)
@@ -221,7 +221,7 @@ summary(regdat.lm)
 cor.test(regdat$x, regdat$y)
 
 # 以anova()針對迴歸模型採用變異數分析，發現x的p值也和在迴歸模型中相同
-anova(y ~ x, data = regdat)
+anova(lm(y ~ x, data = regdat))
 
 # 三之三節
 # 練習六
@@ -303,15 +303,12 @@ summary(fd.lm)$coefficients
 read.slope = summary(fd.lm)$coefficient[2]	
 # 累積有多少斜率大於|−1.201…|
 count.slopes = 0			
+# 指定亂數種子
+set.seed(1)					
 # 以for迴圈進行10000次再抽樣
 for(i in 1:10000) {
-  # 根據i指定亂數種子
-	set.seed(i)					
   # 隨機抽出並排序LogFreq
 	LogFreq.new = sample(fd$LogFreq)		
-	# 因為下面又是一個新的隨機運算，以i*10再次指定亂數種子
-	# 不用i值的原因是避免和上面的sample()進行相同的亂數運算
-	set.seed(i * 10)				
 	# 隨機抽出並排序Dur
 	Dur.new = sample(fd$Dur)			
 	# 以隨機排序資料進行線性迴歸分析
@@ -326,22 +323,19 @@ for(i in 1:10000) {
 
 # 計算大於1.205或小於-1.205樣本斜率的比例，接近.0018
 count.slopes / 10000
-# [1] 0.002
+# [1] 0.0021
 
 # 練習七
 # 設定沒有任何資料點的底圖
 plot(fd$LogFreq, fd$Dur, type = "n", xlab = "Log Frequency", 
      ylab = "Duration (ms)")
 
+# 指定亂數種子
+set.seed(1)			
 # 進行10000次再抽樣
 for(i in 1:10000) {
-  # 根據i指定亂數種子
-  set.seed(i)					
   # 隨機抽出並排序LogFreq
   LogFreq.new = sample(fd$LogFreq)		
-  # 因為下面又是一個新的隨機運算，以i*10再次指定亂數種子
-  # 不用i值的原因是避免和上面的sample()進行相同的亂數運算
-  set.seed(i * 10)				
   # 隨機抽出並排序Dur
   Dur.new = sample(fd$Dur)			
   # 以隨機排序資料進行線性迴歸分析
