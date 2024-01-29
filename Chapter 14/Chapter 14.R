@@ -107,4 +107,63 @@ p.oblong.tiao * p.animal.tiao * p.tiao /
 p.animal.tiao * p.tiao / (p.animal.tiao * p.tiao + 
                             p.animal.nottiao * p.nottiao)
 
+# 二之三節
+# 猜測以Howdy打招呼時對方回覆Howdy是否代表對方會說英語的貝氏因子
+# P(howdy|會英語) / P(howdy|不會英語)
+(9/10) / (1/10)
 
+# 二之三之一節
+vd = read.delim("voweldurationsR.txt")
+head(vd)
+
+# 進行假設變異數相等的雙樣本非成對t檢定
+t.test(Duration ~ Vowel, data = vd, var.equal = T)
+
+# 假設變異數相等的雙樣本非成對t檢定就是簡單線性迴歸
+vd.lm = lm(Duration ~ Vowel, data = vd)
+summary(vd.lm)
+
+vd.lm1 = lm(Duration ~ 1, data = vd)	# 只包含截距的虛無假設模型
+BIC1 = BIC(vd.lm)				              # 取得兩個模型的BIC值
+BIC0 = BIC(vd.lm1)
+B01 = exp((BIC1 - BIC0) / 2)      		# 公式二十三
+B01
+
+# 以BayesFactor套件進行單一樣本t檢定的精確虛無假設貝氏因子估算
+library(BayesFactor)	# 會出現"Type BFManual() to open the manual."的訊息
+BFManual()			      # 遵照指示就可開啟網頁版的使用手冊
+
+i.set = subset(vd, Vowel == "i")	# 取出母音子集合與子集合時長資料
+u.set = subset(vd, Vowel == "u")
+i.Dur = i.set$Duration
+u.Dur = u.set$Duration
+ttestBF(i.Dur, u.Dur)			        # 將時長資料放入ttestBF()進行貝氏因子計算
+
+# 可以用「1」除以「ttestBF()」產生偏好虛無假設的檢定報告
+1 / ttestBF(i.Dur, u.Dur)
+
+# 二之三之二節
+# 貝式版本的卡方檢定
+# 先建立鼻音韻尾與母音無關聯性的資料
+socdata = matrix(c(190, 57, 112, 27), ncol = 2)	# 設定兩個欄位的2x2列聯表
+rownames(socdata) = c("n", "N") 			# N = 軟顎鼻音
+colnames(socdata) = c("a", "i") 
+socdata 
+
+# 傳統卡方檢定
+chisq.test(socdata)
+
+# 以超幾何分佈根據傳統卡方檢定的虛無假設進行貝氏統計版本的卡方檢定
+socdata.bf = contingencyTableBF(socdata, sampleType = "hypergeom")
+# 產生虛無假設相對於對立假設的檢定報告
+1 / socdata.bf
+
+# 在虛無假設中應該只設定欄位(母音)的邊際總數是固定的，以做為機率中的條件，
+# 而鼻音韻尾的分佈則是根據母音的邊際總數進行隨機抽樣
+socdata.bf2 = contingencyTableBF(socdata, sampleType = "indepMulti", 
+                                 fixedMargin = "cols") 
+1 / socdata.bf2
+
+# 讓虛無假設允許讓每一列/欄的邊際總數自由變動
+socdata.bf3 = contingencyTableBF(socdata, sampleType = "jointMulti") 
+1 / socdata.bf3
