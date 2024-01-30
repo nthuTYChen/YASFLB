@@ -167,3 +167,150 @@ socdata.bf2 = contingencyTableBF(socdata, sampleType = "indepMulti",
 # 讓虛無假設允許讓每一列/欄的邊際總數自由變動
 socdata.bf3 = contingencyTableBF(socdata, sampleType = "jointMulti") 
 1 / socdata.bf3
+
+# 三之一節
+# 產生貝塔分佈圖
+# 設定圖表版面為5x5的空間，並設定mai移除每個迷你圖表的邊界留白
+par(mfrow=c(5, 5), mai=c(0, 0, 0, 0))
+# 設定不同的a/b數值：都是[0.5, 1, 2, 3, 4]的向量
+a.val = c(0.5, 1:4)
+b.val = c(0.5, 1:4)
+# 以雙層迴圈根據不同的a/b數值產生對應的貝塔分佈 
+for (b in b.val) { 
+  for (a in a.val) { 
+  # 將目前的a/b值放入dbeta()函數中，並使用curve()函數
+  # 畫出x=0到x=1的曲線
+  		curve(dbeta(x, a, b), 0, 1, 
+  		# 移除X/Y軸標題、設定Y軸範圍
+  		xaxt = "n", yaxt = "n", ylim = c(0, 3)) 
+  		# 以paste()根據目前的a/b值組合每個分佈的文字標籤
+  		curve.label = paste("a=", a, ",b=", b, sep="")
+  		# 在圖上根據座標加上文字標籤
+   		text(0.5, 2.5, labels = curve.label)
+  } 
+}
+par(mfrow = c(1, 1), mai = c(1, 0.8, 0.8, 0.4) + 0.02)	# 恢復預設版面
+
+# 為25人的迷你句法實驗進行貝式二項檢定，看看只有8個人接受的句子是否真的是不能
+# 接受的句子
+# 計算實際資料似然值P(8,25|theta)的自訂函數
+likely.8.25 = function(theta) { theta ^ 8 * (1 - theta) ^ (25 - 8) }
+# 設定繪圖版面為2x3，每張圖之間四個邊界各有0.6的留白
+par(mfrow = c(2, 3), mai = rep(0.6, 4)) 
+# 以curve()函數利用dbeta()繪製a/b=1且x從0到1範圍的事前機率貝塔分佈曲線
+curve(dbeta(x, 1, 1), 0, 1, main = "Uniform prior") 
+# 根據likely.8.25()函數產生x從0到1範圍的實際資料分佈曲線，和事前分佈進行比較
+curve(likely.8.25(x), 0, 1, main = "Likelihood") 
+# 產生根據事前假設得到的事後機率分佈曲線
+curve(dbeta(x, 8+1, 25-8+1), 0, 1, main = "Posterior") 
+# 為另一個事前假設產生相同的三個圖表
+curve(dbeta(x, 100, 100), 0, 1,main = "Informative prior") 
+curve(likely.8.25(x), 0, 1, main = "Likelihood") 
+curve(dbeta(x, 8+100, 25-8+100), 0, 1, main = "Posterior") 
+
+par(mfrow = c(1, 1), mai = c(1, 0.8, 0.8, 0.4) + 0.02)	# 恢復預設版面
+
+# 練習四
+# 重覆同一個句法實驗，但受試者與「是」的回應數量都成長了十倍
+# 以資訊明確的事前假設進行貝式二項檢定
+# 為25人的迷你句法實驗進行貝式二項檢定，看看只有8個人接受的句子是否真的是不能
+# 接受的句子
+# 計算實際資料似然值P(80,250|theta)的自訂函數
+likely.80.250 = function(theta) { theta ^ 80 * (1 - theta) ^ (250 - 80) }
+# 設定繪圖版面為1x3，每張圖之間四個邊界各有0.6的留白
+par(mfrow = c(1, 3), mai = rep(0.6, 4)) 
+# N = 250, z = 80
+curve(dbeta(x, 100, 100), 0, 1,main = "Informative prior") 
+curve(likely.8.25(x), 0, 1, main = "Likelihood") 
+curve(dbeta(x, 80+100, 250-80+100), 0, 1, main = "Posterior") 
+
+par(mfrow = c(1, 1), mai = c(1, 0.8, 0.8, 0.4) + 0.02)	# 恢復預設版面
+
+# 練習五
+# 以原始實驗資料但雙峰事前機率分佈產生事後機率分佈
+likely.8.25 = function(theta) { theta ^ 8 * (1 - theta) ^ (25 - 8) }
+# 設定繪圖版面為1x3，每張圖之間四個邊界各有0.6的留白
+par(mfrow = c(1, 3), mai = rep(0.6, 4)) 
+# N = 25, z = 8, a = 0.5, b = 0.5
+curve(dbeta(x, 0.5, 0.5), 0, 1,main = "Informative prior") 
+curve(likely.8.25(x), 0, 1, main = "Likelihood") 
+curve(dbeta(x, 8+0.5, 25-8+0.5), 0, 1, main = "Posterior") 
+
+par(mfrow = c(1, 1), mai = c(1, 0.8, 0.8, 0.4) + 0.02)	# 恢復預設版面
+
+# 以均勻事前機率分佈a/b=1以及原始實驗資料N=25,z=8產生的事後機率分佈計算θ平均值
+set.seed(1)				# 指定亂數種子
+# 以rbeta()函數根據a/b/N/z參數從對應的貝塔分佈取樣10000個數值再取平均數
+mean(rbeta(10000, 8+1, 25-8+1))
+
+# 按照Kruschke (2015, p.133)的白努力試驗的事後機率公式進行相同的計算
+(8 + 1) / (25 + 1 + 1)
+
+# 示範以兩個階段分開蒐集句法實驗資料，但最終結果一樣，並以此為前提進行貝式分析
+data1 = c(rep(1, 6), rep(0, 10), 1)	# 第一階段的6個1以及10個0
+length(data1)				                # N = 17
+sum(data1)					                # z = 7 
+data2 = c(rep(0, 7), 1)			        # 第二階段的1個1和7個0 
+length(data2)				                # N = 8
+sum(data2)					                # z = 1 
+length(c(data1, data2))			        # 全部資料N = 25
+sum(c(data1, data2))			          # z = 8
+
+# 計算第一/第二階段資料似然值的函數
+likely.7.17 = function(theta) { theta ^ 7 * (1 - theta) ^ (17 - 7) } 
+likely.1.8 = function(theta) { theta ^ 1 * (1 - theta) ^ (8 - 1) } 
+# 設定2x4的版面，將第一/第二階段的分析分別以兩列呈現
+par(mfrow = c(2, 4), mai = rep(0.6, 4)) 
+# 產生第一階段的資料分析
+curve(dbeta(x, 1, 1), 0, 1, main = "data1: Uniform prior") 
+curve(likely.7.17(x), 0, 1, main = "data1: Likelihood") 
+curve(dbeta(x, 7+1, 17-7+1), 0, 1, main = "data1: Posterior") 
+frame() # 跳過第1列第4欄的空間
+# 產生第二階段的資料分析
+# 以第一階段的資料產生第二階段分析的事前機率分佈
+curve(dbeta(x, 7+1, 17-7+1), 0, 1, main="data2: Prior = data 1 posterior") 
+curve(likely.1.8(x), 0, 1, main="data2: Likelihood") 
+curve(dbeta(x, 1+(7+1), 8-1+(17-7+1)), 0, 1, lwd = 2, 
+      main = "data2: Posterior") 
+# 所有資料一起進行分析的事後機率分佈
+curve(dbeta(x, 8+1, 25-8+1), 0, 1, lwd = 2, 
+      main = "All: Posterior (= Figure 3, bottom left)") 
+# 1+(7+1) = 8+1 = 9,  8-1+(17-7+1) = 25-8+1 = 18
+par(mfrow = c(1, 1), mai = c(1, 0.8, 0.8, 0.4) + 0.02)	# 恢復預設版面
+
+# 三之二節
+# 建立尋找95%HDI的自訂函數betaHDI.try，並以實驗資料設定各個函數中使用參數的預設值
+betaHDI.try = function(N = 25, z = 8, a = 1, b = 1, confidence = 0.95) { 
+ 	tail.L = 0		    # 事後分佈左尾的HDI初始值
+	old.width = 1 	  # HDI範圍以最大值1為初始值，但目標是找到最小值 
+ 	not.done = T 		  # 告訴while()迴圈還沒找到HDI的變數，初始值為TRUE
+	while(not.done) {	# 在not.done為TRUE的時候繼續進行迴圈
+ 		tail.L = tail.L + 0.000001		# 逐漸增加左端的HDI界線值
+		# 以pbeta()計算根據目前左端HDI界線值得到的事後分佈左尾區域大小
+		p.tail.L = pbeta(tail.L, z + a, N - z + b) 
+		# 根據左尾區域大小以及設定的區間範圍計算右尾範圍，而左尾加右尾=5%
+		p.tail.R = (1 - confidence) - p.tail.L 
+		# 根據右尾區域大小決定目前右端HDI界線
+ 		tail.R = qbeta(p.tail.R, z + a, N - z + b, lower.tail = F)
+		new.width = tail.R - tail.L 	  # 計算兩個界線之間的距離
+		# 如果舊的HDI範圍比新的範圍更小，代表沒有改善
+ 		if (old.width < new.width) { 	
+ 			not.done = F 			            # 沒有改善就該結束循環計算了
+		# 但如果舊的HDI範圍比新的範圍更大，代表有改善空間
+ 		} else { 	
+ 			old.width = new.width 	      # 以新範圍取代舊範圍繼續循環
+		}					                      # if-else的段落結尾
+	}						                      # while迴圈段落結尾
+ 	return(c(tail.L, tail.R))			    # 結束時回傳HDI範圍
+} 							                    # betaHDI.try自訂函數結尾
+
+# 以預設參數值執行自訂函數
+betaHDI.try()
+
+# 以Kruschke的簡化版本beyaHDI.R進行類似的95%HDI計算
+source("betaHDI.R")	# 記得先下載檔案到你的工作目錄再讀取
+betaHDI()			      # 執行betaHDI.R裡的自訂函數
+
+# 以Kruschke的簡化版本beyaHDI.R進行類似的95%HDI計算，但使用資訊明確範圍更狹窄的
+# 事前機率分佈
+betaHDI(a = 100, b = 100) 
