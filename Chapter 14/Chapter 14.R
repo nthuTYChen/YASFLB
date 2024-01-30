@@ -314,3 +314,27 @@ betaHDI()			      # 執行betaHDI.R裡的自訂函數
 # 以Kruschke的簡化版本beyaHDI.R進行類似的95%HDI計算，但使用資訊明確範圍更狹窄的
 # 事前機率分佈
 betaHDI(a = 100, b = 100) 
+
+# 三之三節
+# 以基於Lynch (2007)例子的資料進行貝式階層模型的示範
+tdat = read.delim("tests.txt") 
+# 重新以學生編號排序資料列以便清楚地呈現分組資訊
+tdat = tdat[order(tdat$Student),]	
+head(tdat) 
+
+mean(tdat$Score)	        # mean = 79.175 
+sd(tdat$Score)	          # sd = 13.26048
+sd(tdat$Score) / sqrt(40) # SE = 2.096666
+
+# 利用tapply()函數以mean()函數根據Student欄位分組進行Score欄位的計算
+subjmeans = tapply(tdat$Score, tdat$Student, mean)
+round(subjmeans, 0)	# 將平均數四捨五數進位至小數點第0位(整數)
+var(subjmeans) 		  # 跨受試者平均測驗分數的變異數=140.7441
+
+tdat.lm = lm(Score ~ 1, data = tdat) # 建立只包含截距的線性迴歸模型
+summary(tdat.lm) 
+
+library(lme4) 
+# 這次同樣建立只包含截距但因變量「Score」以「Student」適當分組的混合效應模型
+tdat.lme = lmer(Score ~ 1 + (1|Student), data = tdat) 
+summary(tdat.lme) 
