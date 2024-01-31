@@ -338,3 +338,43 @@ library(lme4)
 # 這次同樣建立只包含截距但因變量「Score」以「Student」適當分組的混合效應模型
 tdat.lme = lmer(Score ~ 1 + (1|Student), data = tdat) 
 summary(tdat.lme) 
+
+# 將混合效應模型中預測的每位學生的平均測驗分數與整體平均分數進行比較
+# 從混合效應模型中取得每個數據點的估計值
+tdat.lme.pred = predict(tdat.lme)
+# 每個學生在兩個不同班級中都有測驗分數，但是在混合效應模型中並未依照班級分組
+# 所以每個學生測驗分數估計值在不同班級都一樣。因此，我們只要從預測值中取得
+# 第1,3,5,7,9...估計值，就是目前混合效應模型中對每個學生測驗分數的估計值了
+pred.seq = seq(1, length(tdat.lme.pred), by = 2)
+subjmeans.lme = (tdat.lme.pred[pred.seq])
+# 四捨五入至整數
+round(subjmeans.lme)
+#subjmeans.lme = tdat.lme.pred.student 
+#round(subjmeans.lme, 0)
+
+# 產生實際平均數與估計值的相關性散佈圖
+plot(subjmeans, subjmeans.lme, xlim = c(50, 100), ylim=c(50, 100)) 
+# 加上呈現理想「x = y」的趨勢線
+segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
+# 加上實際平均數與估計值的線性趨勢線(actual)，並以虛線呈現
+abline(lm(subjmeans.lme ~ subjmeans), lty = 2)
+# 加上圖例
+legend("topleft", legend = c("X = Y", "Actual fit"), lty = c(1, 2))
+
+# 以Lynch (2007)的程式碼進行貝式統計方法進行隨機變異模擬(請先從GitHub下載Lynch_Random.R)
+source("Lynch_Random.R")
+
+alpha		     	# 整體平均數估計值 77.79978 
+tau2					# 學生分數隨機變異 140.2081 
+sigma2				# 殘餘值隨機變異 74.23824
+sqrt((tau2*s2)/(tau2 + n*s2))	# 整體平均數標準差 2.647624
+
+subjmeans.bayes = alpha_i # 從alpha_i取得貝式階層模型對學生平均數的估計值
+names(subjmeans.bayes) = 1:20 # 為向量的每個值加上學生編號，方便和混合效應模型預測值進行比較
+round(subjmeans.bayes, 0) # 四捨五入為整數的估計值
+
+# 改以貝式階層模型的估計值進行比較，其餘不變
+plot(subjmeans, subjmeans.bayes, xlim = c(50,100), ylim = c(50, 100)) 
+segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
+abline(lm(subjmeans.bayes ~ subjmeans), lty = 2)
+legend("topleft", legend = c("IdealX = Y", "Actual fit"), lty = c(1, 2))

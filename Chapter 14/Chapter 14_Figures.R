@@ -94,3 +94,42 @@ curve(dbeta(x, 8+1, 25-8+1), 0, 1, lwd = 2,
       main = "All: Posterior (= Figure 3, bottom left)") 
 
 dev.off()
+
+# Figure 7
+tdat = read.delim("tests.txt") 
+tdat = tdat[order(tdat$Student),]	
+
+subjmeans = tapply(tdat$Score, tdat$Student, mean)
+
+library(lme4) 
+tdat.lme = lmer(Score ~ 1 + (1|Student), data = tdat) 
+
+tdat.lme.pred = predict(tdat.lme)
+pred.seq = seq(1, length(tdat.lme.pred), by = 2)
+subjmeans.lme = (tdat.lme.pred[pred.seq])
+
+tiff(filename = "ch14.figure7.tiff", height = 1350, width = 1800, unit = "px",
+     compression = c("lzw"), res = 300)
+
+plot(subjmeans, subjmeans.lme, xlim = c(50, 100), ylim=c(50, 100)) 
+segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
+abline(lm(subjmeans.lme ~ subjmeans), lty = 2)
+legend("topleft", legend = c("X = Y", "Actual fit"), lty = c(1, 2))
+
+dev.off()
+
+# Figure 8
+source("Lynch_Random.R")
+
+subjmeans.bayes = alpha_i 
+names(subjmeans.bayes) = 1:20 
+
+tiff(filename = "ch14.figure8.tiff", height = 1350, width = 1800, unit = "px",
+     compression = c("lzw"), res = 300)
+
+plot(subjmeans, subjmeans.bayes, xlim = c(50,100), ylim = c(50, 100)) 
+segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
+abline(lm(subjmeans.bayes ~ subjmeans), lty = 2)
+legend("topleft", legend = c("X = Y", "Actual fit"), lty = c(1, 2))
+
+dev.off()
