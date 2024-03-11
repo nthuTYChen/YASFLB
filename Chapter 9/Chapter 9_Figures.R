@@ -39,7 +39,7 @@ semphon.1 = data.frame(SemRel = c(rep("Irrelevant", 2),
 semphon.2 = data.frame(SemRel = c(rep("Irrelevant", 2), 
                                   rep("Relevant",2  )), 
                        PhonRel = rep(c("Irrelevant", "Relevant"),2), 
-                       RT = c(445, 385, 365, 350),
+                       RT = c(445, 370, 365, 350),
                        InteractType = rep("Reduced/Enhanced", 4))
 
 semphon.3 = data.frame(SemRel = c(rep("Irrelevant", 2), 
