@@ -274,7 +274,7 @@ curve(dbeta(x, 1+(7+1), 8-1+(17-7+1)), 0, 1, lwd = 2,
       main = "data2: Posterior") 
 # 所有資料一起進行分析的事後機率分佈
 curve(dbeta(x, 8+1, 25-8+1), 0, 1, lwd = 2, 
-      main = "All: Posterior (= Figure 3, bottom left)") 
+      main = "All: Posterior (= Figure 3, top right)") 
 # 1+(7+1) = 8+1 = 9,  8-1+(17-7+1) = 25-8+1 = 18
 par(mfrow = c(1, 1), mai = c(1, 0.8, 0.8, 0.4) + 0.02)	# 恢復預設版面
 
@@ -354,12 +354,12 @@ round(subjmeans.lme)
 
 # 產生實際平均數與估計值的相關性散佈圖
 plot(subjmeans, subjmeans.lme, xlim = c(50, 100), ylim=c(50, 100)) 
-# 加上呈現理想「x = y」的趨勢線
+# 加上呈現理想「Y = X」的趨勢線
 segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
 # 加上實際平均數與估計值的線性趨勢線(actual)，並以虛線呈現
 abline(lm(subjmeans.lme ~ subjmeans), lty = 2)
 # 加上圖例
-legend("topleft", legend = c("X = Y", "Actual fit"), lty = c(1, 2))
+legend("topleft", legend = c("Y = X", "Actual fit"), lty = c(1, 2))
 
 # 以Lynch (2007)的程式碼進行貝式統計方法進行隨機變異模擬(請先從GitHub下載Lynch_Random.R)
 source("Lynch_Random.R")
@@ -377,4 +377,30 @@ round(subjmeans.bayes, 0) # 四捨五入為整數的估計值
 plot(subjmeans, subjmeans.bayes, xlim = c(50,100), ylim = c(50, 100)) 
 segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
 abline(lm(subjmeans.bayes ~ subjmeans), lty = 2)
-legend("topleft", legend = c("IdealX = Y", "Actual fit"), lty = c(1, 2))
+legend("topleft", legend = c("Y = X", "Actual fit"), lty = c(1, 2))
+
+# 安裝Stan: https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
+install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+library(brms)
+
+# 建立事前假設為平均值70且標準差為10的常態分佈
+pr = prior(gamma(80, 15), class = "Intercept", lb = 0, ub = 100)
+# 建立只含截距之貝式混合效應模型
+tdat.brm = brm(Score ~ 1 + (1 | Student), data = tdat, prior = pr)
+# 以fixef()函數取得模型的固定效應(fixed effects)。模型中的固定效應只有
+# 截距，所以只有一列資料。而資料的第一欄則為模型預測的截距數字。
+brm.int = fixef(tdat.brm)[1]
+# 以ranef()函數取得模型的隨機效應(random effects)並轉換為資料框物件
+brm.ranef = as.data.frame(ranef(tdat.brm))
+# 將預測的截距加上隨機效應的第一個欄位，得到模型預測的每位學生的分數
+subjmeans.brm = brm.ranef[1] + brm.int
+
+# 產生實際平均數與估計值的相關性散佈圖
+plot(subjmeans, subjmeans.brm$Student.Estimate.Intercept, 
+     xlim = c(50, 100), ylim=c(50, 100), ylab = "subjmeans.brm") 
+# 加上呈現理想「Y = X」的趨勢線
+segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
+# 加上實際平均數與估計值的線性趨勢線(actual)，並以虛線呈現
+abline(lm(subjmeans.brm$Student.Estimate.Intercept ~ subjmeans), lty = 2)
+# 加上圖例
+legend("topleft", legend = c("Y = X", "Actual fit"), lty = c(1, 2))

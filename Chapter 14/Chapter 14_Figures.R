@@ -91,7 +91,7 @@ curve(likely.1.8(x), 0, 1, main="data2: Likelihood")
 curve(dbeta(x, 1+(7+1), 8-1+(17-7+1)), 0, 1, lwd = 2, 
       main = "data2: Posterior") 
 curve(dbeta(x, 8+1, 25-8+1), 0, 1, lwd = 2, 
-      main = "All: Posterior (= Figure 3, bottom left)") 
+      main = "All: Posterior (= Figure 3, top right)") 
 
 dev.off()
 
@@ -114,7 +114,7 @@ tiff(filename = "ch14.figure7.tiff", height = 1350, width = 1800, unit = "px",
 plot(subjmeans, subjmeans.lme, xlim = c(50, 100), ylim=c(50, 100)) 
 segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
 abline(lm(subjmeans.lme ~ subjmeans), lty = 2)
-legend("topleft", legend = c("X = Y", "Actual fit"), lty = c(1, 2))
+legend("topleft", legend = c("Y = X", "Actual fit"), lty = c(1, 2))
 
 dev.off()
 
@@ -130,6 +130,27 @@ tiff(filename = "ch14.figure8.tiff", height = 1350, width = 1800, unit = "px",
 plot(subjmeans, subjmeans.bayes, xlim = c(50,100), ylim = c(50, 100)) 
 segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
 abline(lm(subjmeans.bayes ~ subjmeans), lty = 2)
-legend("topleft", legend = c("X = Y", "Actual fit"), lty = c(1, 2))
+legend("topleft", legend = c("Y = X", "Actual fit"), lty = c(1, 2))
+
+dev.off()
+
+# Figure 9
+install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+library(brms)
+
+pr = prior(gamma(80, 15), class = "Intercept", lb = 0, ub = 100)
+tdat.brm = brm(Score ~ 1 + (1 | Student), data = tdat, prior = pr)
+brm.int = fixef(tdat.brm)[1]
+brm.ranef = as.data.frame(ranef(tdat.brm))
+subjmeans.brm = brm.ranef[1] + brm.int
+
+tiff(filename = "ch14.figure9.tiff", height = 1350, width = 1800, unit = "px",
+     compression = c("lzw"), res = 300)
+
+plot(subjmeans, subjmeans.brm$Student.Estimate.Intercept, 
+     xlim = c(50, 100), ylim=c(50, 100), ylab = "subjmeans.brm") 
+segments(x0 = 50, y0 = 50, x1 = 100, y1 = 100) 
+abline(lm(subjmeans.brm$Student.Estimate.Intercept ~ subjmeans), lty = 2)
+legend("topleft", legend = c("Y = X", "Actual fit"), lty = c(1, 2))
 
 dev.off()
