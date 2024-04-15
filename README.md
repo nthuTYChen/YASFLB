@@ -11,4 +11,4 @@ Copyright 2024
 
 部份語言分析樣本材料由麥傑教授提供，來源為<a href="http://lngproc.ccu.edu.tw/lngmyers/statsresources.html" target="_blank">http://lngproc.ccu.edu.tw/lngmyers/statsresources.html</a>。
 
-<i>上次更新：2024/1/31</i>
+<i>上次更新：2024/4/15</i>
