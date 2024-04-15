@@ -423,6 +423,20 @@ abline(lm(acc ~ age), lty = 2)			    # 加上線性模型迴歸線
 legend("topleft", lty = c(1, 2), 	
        legend=c("Poly", "Linear"), bg = "white")
 
+# 以虛假的資料測試齊夫定律
+freqmax = 1000			        # 最大的詞頻
+wordrank = 1:100			      # 1至100的詞頻排名
+# 將最大詞頻除以排名得到100個按照齊夫定律的詞頻
+wordfreq = freqmax / wordrank	
+plot(wordrank, wordfreq)		# 產生詞頻相對詞頻排名的散佈圖
+
+log.wordrank = log(wordrank)		  # 將詞頻排名進行對數轉換
+log.wordfreq = log(wordfreq)		  # 將詞頻進行對數轉換
+plot(log.wordrank, log.wordfreq)	# 產生對數轉換後的相關性散佈圖
+# 以線性模型模擬經對數轉換過後的詞頻分佈，驗證齊夫定律
+log.word.lm = lm(log.wordfreq ~ log.wordrank)
+abline(log.word.lm)
+
 # 四之三節
 # 將原始數值轉換為「小至大」的排名
 rank(c(5, 5, 9))

@@ -167,7 +167,9 @@ df.between.treatment = 4 - 1
 # 公式<八>
 # 總共有五位學生從1開始由小到大排序，所以Student欄位「最大」的數值是5，
 # 減去1就是組內因子間分組單位自由度了
-df.between.unit = max(wordExp$Student) - 1
+# Student在剛剛的程式碼中已經被轉成因子了，所以這裡的數學計算中得先用
+# as.numeric()函數轉換回數值
+df.between.unit = max(as.numeric(wordExp$Student)) - 1
 
 # 先計算分組單位平方和
 between.unit.avg = aggregate(Learning ~ Student, FUN = mean, data = wordExp)
@@ -295,30 +297,31 @@ summary(color.lm)
 library(lsr)	# 記得先安裝跟讀取套件唷
 etaSquared(color.aov)
 
-# 利用lsmeans套件產生每個進行比較樣本本身的信賴區間
-library(lsmeans)
+# 利用emmeans套件產生每個進行比較樣本本身的信賴區間
+library(emmeans)
 # 重新建立建立哆啦妹研究的變異數分析模型
 ddat.all = read.delim("doramiR.txt")
 ddat.clean = na.omit(ddat.all) 
 ddat.clean$Participant = as.factor(ddat.clean$Participant)
 ddat.part.aov = aov(RT ~ Education * SynCat * Freq +
                         +	Error(Participant / (SynCat * Freq)), data = ddat.clean)
-# 在「lsmeans()」函數中放進模型以及所有模型的自變量進行每個比較的信賴區間計算
-lsmeans(ddat.part.aov, c("Education", "SynCat", "Freq"))
+# 在「emmeans()」函數中放進模型以及所有模型的自變量進行每個比較的信賴區間計算
+emmeans(ddat.part.aov, c("Education", "SynCat", "Freq"))
 
 # 使用ggplot2根據lsmeans()函數產生的資料繪製含有誤差線的長條圖
 # 先將上面lsmeans函數產生的結果透過as.data.frame函數轉為資料框物件
-ddat.lsmeans = as.data.frame(
-  lsmeans(ddat.part.aov, c("Education", "SynCat", "Freq"))
+ddat.emmeans = as.data.frame(
+  emmeans(ddat.part.aov, c("Education", "SynCat", "Freq"))
   )
+
 library(ggplot2)
 # 由於之前的分析顯示我們的分析裡有顯著的教育程度與詞頻的交互作用，所以在ggplot
 # 函數中我們以教育程度做為x軸的分組，而詞頻則在長條圖中使用不同的填入顏色在每一組
 # 教育程度的分組中呈現差異。同時，我們的分析也包含語法詞類的主要效應，所以我們
 # 利用facet_grid()函數再依據個別詞類呈現上述的交互作用。在geom_errorbar()函數中，
 # 關鍵的參數是ymin與ymax，分別設定對應到為代表信賴區間上下限的欄位。
-ggplot(data = ddat.lsmeans, 
-       mapping = aes(x = Education, y = lsmean, group = Freq, 
+ggplot(data = ddat.emmeans, 
+       mapping = aes(x = Education, y = emmean, group = Freq, 
                      color = Freq)) +
   facet_grid(. ~ SynCat) +
   geom_line(stat = "identity", linewidth = 1) + geom_point(stat = "identity") +

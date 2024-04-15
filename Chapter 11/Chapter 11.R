@@ -275,6 +275,20 @@ summary(color.sum.lm)
 # 對此迴歸模型進行變異數分析
 anova(color.sum.lm)
 
+# 由於t檢定是ANOVA的一種特別形式，而ANOVA又是一種特殊的迴歸分析，
+# 如果你正確地執行以下的指令進行兩個顏色教室的比較，那麼所有檢定中Color自變量的
+# p值都會是「.00283」。
+exp1.nored = subset(exp1, Color != "red")	# 移除紅色教室的資料 
+summary(aov(Learning ~ Color, data = exp1.nored)) 
+summary(lm(Learning ~ Color, data = exp1.nored)) 
+summary(lm(Learning ~ Color.y, data = exp1.nored)) 
+summary(lm(Learning ~ Color.sum, data = exp1.nored))
+
+library(emmeans) 			# 安裝載入套件
+# 以list()函數根據Color.sum自變量產生兩兩比較(pairwise)的列表，並利用Tukey’s
+# HSD進行事後比較的p值校正
+emmeans(color.sum.lm, list(pairwise ~ Color.sum), adjust = "tukey”)
+
 # 三之三之一節
 # 教室顏色對生字學習影響的第二個實驗，也就是加上受試者性別做為第二個自變量
 exp2 = read.delim("ColoredRooms2.txt")

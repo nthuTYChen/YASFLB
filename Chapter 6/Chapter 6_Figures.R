@@ -207,11 +207,34 @@ legend("topleft", lty = c(1, 2),
 dev.off()
 
 # Figure 17
+tiff(file = "ch6.figure17.tiff", height = 1350, width = 1800, units = "px",
+     compression = c("lzw"), res = 300)
+
+freqmax = 1000			    
+wordrank = 1:100		
+wordfreq = freqmax / wordrank	
+plot(wordrank, wordfreq)
+
+dev.off()
+
+# Figure 18
+tiff(file = "ch6.figure18.tiff", height = 1350, width = 1800, units = "px",
+     compression = c("lzw"), res = 300)
+
+log.wordrank = log(wordrank)		  
+log.wordfreq = log(wordfreq)		  
+plot(log.wordrank, log.wordfreq)	
+log.word.lm = lm(log.wordfreq ~ log.wordrank)
+abline(log.word.lm)
+
+dev.off()
+
+# Figure 19
 
 library(languageR)		
 fd = read.delim("freqdur.txt")
 
-tiff(file = "ch6.figure17.tiff", height = 1350, width = 1800, units = "px",
+tiff(file = "ch6.figure19.tiff", height = 1350, width = 1800, units = "px",
     compression = c("lzw"), res = 300)
 
 pairscor.fnc(fd[,2:5 ])	
