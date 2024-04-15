@@ -466,6 +466,28 @@ score = c(5,5,9)
 cor.test(kidage, score, method="spearman")
 cor.test(rank(kidage), rank(score))$p.value # 以皮爾遜相關係數計算排名值
 
+# 示範肯德爾等級相關係數
+kidage = c(1, 2, 3) 	# 孩童年齡
+score = c(6, 5, 9) 	  # 某種語言輸出正確率
+n = length(kidage) 	  # 總共三對成對數值
+# 計算x樣本中數值彼此之間的大小關係
+x.pair.ranks = c(kidage[1] > kidage[2], kidage[1] > kidage[3], 
+                   + 								kidage[2] > kidage[3]) 
+# x樣本中每一筆判斷得到的都是FALSE，也就是前者不比後者大
+# 計算y樣本中數值彼此之間的大小關係
+y.pair.ranks = c(score[1] > score[2], score[1] > score[3], 
+                   + 								score[2] > score[3]) 
+# 第一組比較為TRUE(6 > 5)，另兩組比較都是FALSE
+# 如果兩個樣本中的兩兩比較相同，就是和諧的成對樣本，共有兩組都是FALSE
+C.val = sum(x.pair.ranks == y.pair.ranks) 
+# 如果兩個樣本中的兩兩比較不同，就是不和諧的成對樣本，共有一組(FALSE vs. TRUE)
+D.val = sum(x.pair.ranks != y.pair.ranks) 
+# 計算tau
+tau = 2 * (C.val - D.val)/(n * (n - 1)) # 0.3333333 
+# 以cor.test()驗算
+cor.test(kidage, score, method = "kendall") # tau = 0.3333333, p = 1
+
+
 # 四之四節
 # 先安裝languageR套件
 install.packages("languageR", dependencies = T, ask = F)
