@@ -19,10 +19,10 @@ library(ggplot2)
 ggplot(RTdat, aes(x = RT)) + geom_histogram(color = "white") + theme_bw()
 
 # 每組包含的數字範圍為100(如：1-100)
-hist(RTdat$RT, break = 100)
+hist(RTdat$RT, breaks = 100)
 
 # 將x軸資料在直方圖中分為10組呈現
-ggplot(RTdat, aes(x=RT))+geom_histogram(bins = 10)+theme_bw()
+ggplot(RTdat, aes(x = RT)) + geom_histogram(bins = 10) + theme_bw()
 
 # 以density()取得RTDat$RT的分佈曲線後，利用plot()函數製圖
 plot(density(RTdat$RT))
@@ -82,6 +82,14 @@ nrow(RTdat) - nrow(RTdat.sub)
 # 四之二節
 # 使用RT欄位資料繪製箱形圖，將outline參數設定為TRUE以顯示離群值
 boxplot(RTdat$RT, outline = T, xlab = "Box Plot", ylab = "RT (ms)")
+
+# 使用RT欄位資料以ggplot2套件繪製小提琴圖
+library(ggplot2)		# 載入套件
+# 使用RTdat做為資料來源，並將RT欄位對應到Y軸。箱形圖與小提琴圖的X軸並沒有對應至
+# 任何欄位，所以設定為「NA」=「Not Applicable」，並且在labs()以及guides()函數中
+# 將X軸資訊分別設定為NULL(空)以及"none"(無)，隱藏不重要的X軸資訊
+ggplot(data = RTdat, mapping = aes(x = NA, y = RT)) + geom_violin() + 
+  labs(x = NULL) + guides(x = "none") + theme_bw()
 
 # 利用c()的結合函數，把「1重覆10次」(rep = repetition)，「2到99」
 # 以及「100重覆100次」這三個數字向量結合為一個數字向量x
