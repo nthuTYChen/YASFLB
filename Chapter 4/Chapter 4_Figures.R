@@ -292,12 +292,10 @@ tiff(filename = "ch4.figure23.tiff", width = 1800, height = 1350, units = "px",
 
 RTdat.mean = mean(RTdat$RT)	
 RTdat.sd = sd(RTdat$RT)		
-RTdat.max = max(RTdat$RT)	
-RTdat.min = min(RTdat$RT)	
-RTdat.norm = dnorm(RTdat.min:RTdat.max, 
+RTdat.norm = dnorm(0:1500, 
                    mean = RTdat.mean, sd = RTdat.sd)
-plot(density(RTdat$RT))
-lines(x = RTdat.min:RTdat.max, y = RTdat.norm, lty = 2)
+plot(density(RTdat$RT), xlim = c(0, 1500))
+lines(x = 0:1500, y = RTdat.norm, lty = 2)
 legend("topright", legend = c("Sample", "Theoretical"), lty = c(1, 2))
 
 dev.off()

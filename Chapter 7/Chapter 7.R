@@ -296,22 +296,19 @@ rand.int.lower = rand.mean + qt(p = 0.025, df = n - 1) * (rand.sd/sqrt(n))
 # 太好了，我們的妹妹不是火星人！那你的妹妹是嗎？:)
 
 # 三之三
-# 建立繪製誤差線的自訂函數
-error.bar = function(x, y, upper, lower = upper, length = 0.1,...) { 
-  if(length(x) != length(y) | length(y) !=length(lower) | 
-     length(lower) != length(upper)) 
-    stop("vectors must be same length") 
-  	arrows(x, y + upper, x, y - lower, 
-     		angle = 90, code = 3, length = length, ...) 
-} 
 # 我們用妹妹的VOT例子來試試看 
 # 先以樣本平均數繪製長條圖並將長條圖暫存於sister.plot物件中
 sister.plot = barplot(22, ylim = c(0,30), 
                       ylab = "Mean VOT (ms)", main = "Sister vs. Martians") 
 # 根據<公式二十>計算在95%信賴區間的條件下，從平均值往上加以及往下減的範圍
 conf95 = qt(0.05/2, df = 15) * (3/sqrt(16))
-# 使用自訂函數產生含有信賴區間誤差線的長條圖
-error.bar(sister.plot, 22, conf95) 
+# 使用arrows()函數在暫存的長條圖中加上一個箭頭範圍的標記
+# x0與x1都是在x軸上的繪圖起點座標，設定為sister.plot代表以x軸中心為起點。
+# y0與y1則是從x軸x0與x1出發的在y軸上繪圖終點座標，分別設定為信賴區間的上下限。
+# 設定angle為90則是讓箭頭從銳角->變成水平角-|，變成表示範圍的T字符號。
+# code和length參數則是分別設定箭頭的線條樣式(3 = 虛線)以及寬度
+arrows(x0 = sister.plot, y0 = 22 + conf95, x1 = sister.plot, y1 = 22 - conf95, 
+       angle = 90, code = 3, length = 0.1) 
 # 在圖上以虛線標出火星人的平均數(假設母體平均值)，落在妹妹VOT的95%信賴區間之外
 abline(h = 20, lty = 2)
                                   
@@ -349,9 +346,11 @@ girls1 = subset(study1, Gender == "Girl")
 bg.plot = barplot(abs(mean(boys1$Measure) - mean(girls1$Measure)),
                   names.arg=c("Boys vs. Girls"), ylab = "Difference", 
                   ylim = c(0, 3.5)) 	
-# 加上誤差線 
-error.bar(bg.plot, abs(mean(boys1$Measure) - mean(girls1$Measure)), 
-          conf95.2) 
+# 計算兩個樣本平均值的差異絕對值
+bg.m.diff = abs(mean(boys1$Measure) - mean(girls1$Measure))
+# 用arrows()加上誤差線 
+arrows(x0 = bg.plot, y0 = bg.m.diff + conf95.2, x1 = bg.plot, 
+         y1 = bg.m.diff - conf95.2, angle = 90, code = 3, length = 0.1) 
 
 # 改用ggplot2產生類似的圖表
 # 先組合含有xLab、Diff、以及CI三個欄位的資料框，並放入對應的數值

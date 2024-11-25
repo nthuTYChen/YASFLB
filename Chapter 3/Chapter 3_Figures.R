@@ -57,9 +57,9 @@ tiff(filename = "ch3.figure14.tif", width = 1800, height = 1350, units = "px",
     bg = "white", res = 300)
 
 plot(fakeAgeVocCor$VocSize ~ fakeAgeVocCor$Age,
-     main = "Age-Vocabulary Scatterplot (based on random data)",
-     ylab = "Vocabulary Size", 
-     xlab = "Age", 
+     main = "年齡與詞彙量散佈圖(基於隨機資料)",
+     ylab = "詞彙量", 
+     xlab = "年齡", 
      lwd = 2, pch = 1, cex = 1.5, type = "p")
 
 dev.off()

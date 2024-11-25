@@ -347,16 +347,14 @@ points(0:40, dbinom(0:40, 40, 0.5))
 # 比較實際樣本RTdat.txt的分佈密度與對應常態分佈的分佈密度
 RTdat.mean = mean(RTdat$RT)	# 取得樣本反應時間平均值
 RTdat.sd = sd(RTdat$RT)		# 取得樣本反應時間標準差
-RTdat.max = max(RTdat$RT)	# 取得樣本反應時間最大值
-RTdat.min = min(RTdat$RT)	# 取得樣本反應時間最小值
-# 根據實際反應時間最小值到最大值的範圍
+# 將x軸範圍定義為的0至1500
 # 從相同平均值與標準差的理想常態分佈取得分佈密度
-RTdat.norm = dnorm(RTdat.min:RTdat.max, 
+RTdat.norm = dnorm(0:1500, 
                    mean = RTdat.mean, sd = RTdat.sd)
 # 先產生樣本的分佈密度圖
-plot(density(RTdat$RT))
+plot(density(RTdat$RT), xlim = c(0, 1500))
 # 再加上以樣本的數值得到在常態分佈中的分佈密度曲線
-lines(x = RTdat.min:RTdat.max, y = RTdat.norm, lty = 2)
+lines(x = 0:1500, y = RTdat.norm, lty = 2)
 
 #使用qqnorm()進行常態分位數的比較
 qqnorm(RTdat$RT)		# 產生反應時間資料的常態分位數比較圖
